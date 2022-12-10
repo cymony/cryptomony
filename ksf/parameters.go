@@ -4,6 +4,7 @@
 
 package ksf
 
+// Option type indicates option functions
 type Option func(KSF) error
 
 // WithArgon2Time sets argon algorithm's time parameter.
