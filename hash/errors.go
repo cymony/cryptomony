@@ -7,6 +7,6 @@ package hash
 import "errors"
 
 var (
+	// ErrMismatchLengthWrite returns when hash's write operation writes wrong length of data
 	ErrMismatchLengthWrite = errors.New("hash: mismatch requested data and written data lengths")
-	ErrHmacKeySize         = errors.New("hash: hmac key length is larger than hash output size")
 )
