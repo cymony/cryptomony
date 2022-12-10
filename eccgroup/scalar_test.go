@@ -176,3 +176,139 @@ func testMarshalScalar(t *testing.T, testTimes int, g Group) {
 		}
 	}
 }
+
+//nolint:errcheck,gocyclo //benchmark
+func BenchmarkScalar(b *testing.B) {
+	for _, group := range allGroups {
+		x := group.RandomScalar()
+		y := group.RandomScalar()
+
+		name := group.String()
+
+		// Zero
+		b.Run(name+"/Zero", func(b *testing.B) {
+			for i := 0; i < b.N; i++ {
+				x.Zero()
+			}
+		})
+
+		// One
+		b.Run(name+"/One", func(b *testing.B) {
+			for i := 0; i < b.N; i++ {
+				x.One()
+			}
+		})
+
+		// Add
+		b.Run(name+"/Add", func(b *testing.B) {
+			for i := 0; i < b.N; i++ {
+				x.Add(y)
+			}
+		})
+
+		// Subtract
+		b.Run(name+"/Subtract", func(b *testing.B) {
+			for i := 0; i < b.N; i++ {
+				x.Subtract(y)
+			}
+		})
+
+		// Set
+		b.Run(name+"/Set", func(b *testing.B) {
+			for i := 0; i < b.N; i++ {
+				x.Set(y)
+			}
+		})
+
+		// Encode
+		b.Run(name+"/Encode", func(b *testing.B) {
+			for i := 0; i < b.N; i++ {
+				x.Encode()
+			}
+		})
+
+		encodedY := y.Encode()
+		// Decode
+		b.Run(name+"/Decode", func(b *testing.B) {
+			for i := 0; i < b.N; i++ {
+				x.Decode(encodedY)
+			}
+		})
+
+		// Copy
+		b.Run(name+"/Copy", func(b *testing.B) {
+			for i := 0; i < b.N; i++ {
+				x.Copy()
+			}
+		})
+
+		// Equal
+		b.Run(name+"/Equal", func(b *testing.B) {
+			for i := 0; i < b.N; i++ {
+				x.Equal(y)
+			}
+		})
+
+		// Invert
+		b.Run(name+"/Invert", func(b *testing.B) {
+			for i := 0; i < b.N; i++ {
+				x.Invert()
+			}
+		})
+
+		// IsZero
+		b.Run(name+"/IsZero", func(b *testing.B) {
+			for i := 0; i < b.N; i++ {
+				x.IsZero()
+			}
+		})
+
+		// Multiply
+		b.Run(name+"/Multiply", func(b *testing.B) {
+			for i := 0; i < b.N; i++ {
+				x.Multiply(y)
+			}
+		})
+
+		// Random
+		b.Run(name+"/Random", func(b *testing.B) {
+			for i := 0; i < b.N; i++ {
+				x.Random()
+			}
+		})
+
+		// MarshalBinary
+		b.Run(name+"/MarshalBinary", func(b *testing.B) {
+			for i := 0; i < b.N; i++ {
+				x.MarshalBinary()
+			}
+		})
+
+		marshalledY, err := y.MarshalBinary()
+		test.CheckNoErr(b, err, "marshal binary err")
+
+		// UnmarshalBinary
+		b.Run(name+"/UnmarshalBinary", func(b *testing.B) {
+			for i := 0; i < b.N; i++ {
+				x.UnmarshalBinary(marshalledY)
+			}
+		})
+
+		// MarshalText
+		b.Run(name+"/MarshalText", func(b *testing.B) {
+			for i := 0; i < b.N; i++ {
+				x.MarshalText()
+			}
+		})
+
+		marshalledTextY, err := y.MarshalText()
+		test.CheckNoErr(b, err, "marshal text err")
+
+		// UnmarshalText
+		b.Run(name+"/UnmarshalText", func(b *testing.B) {
+			for i := 0; i < b.N; i++ {
+				x.UnmarshalText(marshalledTextY)
+			}
+		})
+	}
+}

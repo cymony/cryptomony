@@ -7,6 +7,6 @@ package r255
 import "errors"
 
 var (
-	ErrNotValidDecimal = errors.New("r255: not a valid decimal")
+	// ErrInvalidEncoding returns when passed unsuitable data for unmarshaling
 	ErrInvalidEncoding = errors.New("r255: invalid element encoding")
 )

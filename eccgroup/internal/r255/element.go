@@ -15,6 +15,7 @@ import (
 	"github.com/cymony/cryptomony/eccgroup/internal"
 )
 
+// Element represents Ristretto point
 type Element struct {
 	e *edwards25519.Point
 }
@@ -169,7 +170,6 @@ func (e *Element) Bytes() []byte {
 	return e.bytes(b)
 }
 
-//nolint:revive //not shadowing
 func (e *Element) bytes(b []byte) []byte {
 	X, Y, Z, T := e.e.ExtendedCoordinates()
 	tmp := &field.Element{}
