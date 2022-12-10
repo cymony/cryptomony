@@ -5,12 +5,15 @@
 // Package ksf is a small wrapper around built-in cryptographic key strech functions to make their usage easier and safer
 package ksf
 
+// Identifier is the type for supported ksf functions
 type Identifier uint
 
 const (
-	// Supported algorithms' identifiers
+	// Argon2id identfier
 	Argon2id Identifier = 1 + iota
+	// Bcrypt identifier
 	Bcrypt
+	// Scrypt identifier
 	Scrypt
 )
 

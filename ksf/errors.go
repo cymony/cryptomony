@@ -7,8 +7,12 @@ package ksf
 import "errors"
 
 var (
-	ErrNotArgon2             = errors.New("ksf: instance is not argon2")
-	ErrNotBcrypt             = errors.New("ksf: instance is not bcrypt")
-	ErrNotScrypt             = errors.New("ksf: instance is not scrypt")
+	// ErrNotArgon2 returns when non argon2 option passed to SetOptions function.
+	ErrNotArgon2 = errors.New("ksf: instance is not argon2")
+	// ErrNotBcrypt returns when non bcrypt option passed to SetOptions function.
+	ErrNotBcrypt = errors.New("ksf: instance is not bcrypt")
+	// ErrNotScrypt returns when non scrypt option passed to SetOptions function.
+	ErrNotScrypt = errors.New("ksf: instance is not scrypt")
+	// ErrNotSupportedAlgorithm returns non supported ksf algorithm selected.
 	ErrNotSupportedAlgorithm = errors.New("ksf: algorithm not supported")
 )
