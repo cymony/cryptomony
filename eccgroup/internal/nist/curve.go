@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-3 Clause
 // license that can be found in the LICENSE file.
 
+// Package nist implements nist's curves prime-order group
 package nist
 
 import (
@@ -57,10 +58,7 @@ func (c *curve[point]) encodeToCurveXMD(input, dst []byte) point {
 }
 
 func (c *curve[point]) hashToCurveXMD(input, dst []byte) point {
-	count := 2
-	ext := 2
-
-	u, err := h2f.Hash2FieldXMD(c.hash, input, dst, count, ext, c.secLength, c.field.primeNumber)
+	u, err := h2f.Hash2FieldXMD(c.hash, input, dst, 2, 1, c.secLength, c.field.primeNumber)
 	if err != nil {
 		panic(err)
 	}

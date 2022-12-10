@@ -6,6 +6,7 @@ package internal
 
 import "encoding"
 
+// Element interface represents the element of underlying curve's element
 type Element interface {
 	// Base sets the element to the group's base point a.k.a. canonical generator.
 	Base() Element

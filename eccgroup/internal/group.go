@@ -2,8 +2,10 @@
 // Use of this source code is governed by a BSD-3 Clause
 // license that can be found in the LICENSE file.
 
+// Package internal wraps all nist and ristretto255 curves into interfaces
 package internal
 
+// Group interface represents the prime-order group
 type Group interface {
 	// NewScalar returns a new, empty, scalar.
 	NewScalar() Scalar

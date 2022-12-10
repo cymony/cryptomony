@@ -14,6 +14,7 @@ import (
 	"github.com/cymony/cryptomony/utils"
 )
 
+// Scalar represents the Ristretto255 curve Scalar point
 type Scalar struct {
 	s *edwards25519.Scalar
 }
@@ -37,6 +38,7 @@ func (s *Scalar) Zero() internal.Scalar {
 	return s
 }
 
+// One sets the scalar to 1, and returns it.
 func (s *Scalar) One() internal.Scalar {
 	// 32-byte little endian value of "1"
 	scOne := make([]byte, conanicalSize)

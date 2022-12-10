@@ -6,6 +6,7 @@ package internal
 
 import "encoding"
 
+// Scalar interface represents the scalar of underlying curve's scalar
 type Scalar interface {
 	// Zero sets the scalar to 0, and returns it.
 	Zero() Scalar

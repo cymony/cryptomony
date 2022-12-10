@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-3 Clause
 // license that can be found in the LICENSE file.
 
+// Package r255 implements Ristretto255 curve prime-order groups with backend "filippo.io/edwards25519"
 package r255
 
 import (

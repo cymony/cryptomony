@@ -138,7 +138,7 @@ func (f field) exponent(x, y, z *big.Int) *big.Int {
 }
 
 // cmov sets x to z if cond = true; y else; returns x
-func (f field) cmov(x, y, z *big.Int, cond bool) *big.Int { //nolint:revive //necessary for functionality
+func (f field) cmov(x, y, z *big.Int, cond bool) *big.Int {
 	if cond {
 		x.Set(z)
 	} else {
