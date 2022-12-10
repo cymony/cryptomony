@@ -1,0 +1,138 @@
+run:
+    issue-exit-code: 1
+    timeout: 3m
+
+skip-dirs:
+    - assets # megalinter results+fixes
+
+linters-settings:
+    errcheck:
+        check-type-assertions: true
+        check-blank: true
+        ignore: fmt:.*
+        disable-default-exclusions: false
+    goconst:
+        match-constant: true
+        min-len: 2
+        min-occurrences: 3
+        ignore-tests: false
+        ignore-calls: true
+        numbers: false
+        min: 3
+        max: 3
+    gocritic:
+        enabled-tags:
+            - diagnostic
+            - experimental
+            - opinionated
+            - performance
+            - style
+        disabled-checks:
+            - unnamedResult
+    govet:
+        check-shadowing: true
+        enable-all: false
+        disable-all: false
+        enable:
+            - fieldalignment
+    nolintlint:
+        require-explanation: true
+        require-specific: true
+    gocyclo:
+        # minimal code complexity to report, 30 by default (but we recommend 10-20)
+        min-complexity: 15
+    depguard:
+        list-type: blacklist
+        include-go-root: true
+    revive:
+        ignore-generated-header: true
+        severity: warning
+        rules:
+            - name: bare-return
+            - name: blank-imports
+            - name: bool-literal-in-expr
+            - name: call-to-gc
+            - name: confusing-results
+            - name: constant-logical-expr
+            - name: context-as-argument
+            - name: context-keys-type
+            - name: deep-exit
+            - name: defer
+              arguments: [['call-chain', 'loop']]
+            - name: dot-imports
+            - name: duplicated-imports
+            - name: early-return
+            - name: empty-block
+            - name: empty-lines
+            - name: error-naming
+            - name: error-return
+            - name: error-strings
+            - name: errorf
+            - name: exported
+            - name: flag-parameter
+            - name: get-return
+            - name: identical-branches
+            - name: if-return
+            - name: increment-decrement
+            - name: indent-error-flow
+            - name: import-shadowing
+            - name: modifies-parameter
+            - name: modifies-value-receiver
+            - name: package-comments
+            - name: range
+            - name: range-val-in-closure
+            - name: range-val-address
+            - name: receiver-naming
+            - name: redefines-builtin-id
+            - name: string-of-int
+            - name: string-format
+            - name: struct-tag
+            - name: superfluous-else
+            - name: time-naming
+            - name: var-naming
+            - name: var-declaration
+            - name: unconditional-recursion
+            - name: unexported-return
+            - name: unhandled-error
+            - name: unnecessary-stmt
+            - name: unreachable-code
+            - name: unused-parameter
+            - name: waitgroup-by-value
+
+linters:
+    disable-all: true
+    enable:
+        - bodyclose
+        - unused
+        - depguard
+        - dogsled
+        - dupl
+        - errcheck
+        - exportloopref
+        - exhaustive
+        - goconst
+        - gocritic
+        - gofmt
+        - goimports
+        - gocyclo
+        - gosec
+        - gosimple
+        - govet
+        - ineffassign
+        - misspell
+        - nolintlint
+        - nakedret
+        - prealloc
+        - predeclared
+        - revive
+        - staticcheck
+        - stylecheck
+        - thelper
+        - tparallel
+        - typecheck
+        - unconvert
+        - unparam
+        - whitespace
+        - wsl
+        - megacheck
+        - contextcheck

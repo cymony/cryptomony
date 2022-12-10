@@ -1,0 +1,17 @@
+root = true
+
+[*]
+end_of_line = lf
+charset = utf-8
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = tab
+indent_size = 4
+
+[{*.md,*_test.go}]
+indent_style = unset
+indent_size = unset
+
+[*.{yml,yaml,json,sh}]
+indent_style = space
+indent_size = 4

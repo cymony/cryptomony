@@ -1,0 +1,45 @@
+{
+    "go.lintTool": "golangci-lint",
+    "go.lintFlags": ["--fix"],
+    "[json]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[markdown]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[yaml]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "psi-header.config": {
+        "forceToTop": true,
+        "blankLinesAfter": 1,
+        "license": "CUSTOM",
+        "author": "The Cymony Authors",
+        "company": "Cymony"
+    },
+    "psi-header.changes-tracking": {
+        "isActive": true,
+        "includeGlob": ["**/*.go"],
+        "autoHeader": "autoSave",
+        "enforceHeader": true
+    },
+    "psi-header.license-text": [
+        "Copyright (c) <<year>> <<author>>. All rights reserved.",
+        "Use of this source code is governed by a BSD-3 Clause",
+        "license that can be found in the LICENSE file."
+    ],
+    "psi-header.lang-config": [
+        {
+            "language": "go",
+            "begin": "",
+            "end": "",
+            "prefix": "// "
+        }
+    ],
+    "psi-header.templates": [
+        {
+            "language": "go",
+            "template": ["<<licensetext>>"]
+        }
+    ]
+}
