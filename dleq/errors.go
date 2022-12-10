@@ -7,5 +7,6 @@ package dleq
 import "errors"
 
 var (
-	ErrUnsupportedGroup = errors.New("unsupported group")
+	// ErrUnsupportedGroup raises when unsupported group passed to Configuration struct
+	ErrUnsupportedGroup = errors.New("dleq: unsupported group")
 )
