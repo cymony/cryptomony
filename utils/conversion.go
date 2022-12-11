@@ -8,7 +8,7 @@ import (
 	"math/big"
 )
 
-// I2OSP converts a nonnegative integer to an octet string of a specified length.
+// I2osp converts a nonnegative integer to an octet string of a specified length.
 //
 // Reference: (https://datatracker.ietf.org/doc/html/rfc8017#section-4.1)
 func I2osp(x *big.Int, xLen int) ([]byte, error) {
@@ -26,7 +26,7 @@ func I2osp(x *big.Int, xLen int) ([]byte, error) {
 	return ret, nil
 }
 
-// OS2IP converts an octet string to a nonnegative integer.
+// Os2ip converts an octet string to a nonnegative integer.
 //
 // Reference: (https://datatracker.ietf.org/doc/html/rfc8017#section-4.2)
 func Os2ip(x []byte) int {
