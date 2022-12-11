@@ -7,7 +7,6 @@ package oprf
 
 import (
 	"bytes"
-	"encoding"
 	"encoding/binary"
 	"encoding/hex"
 	"encoding/json"
@@ -143,7 +142,7 @@ func getSecretAndTweakedKeyFromInfo(g eccgroup.Group, mode ModeType, s Suite, pr
 	t := g.NewScalar().Set(privKey.k).Add(m)
 	// if t == 0: raise InverseError
 	if t.IsZero() {
-		return nil, nil, ErrInverse
+		return nil, nil, errInverse
 	}
 
 	tweakedKey := g.NewElement().Base().Multiply(t)
@@ -216,7 +215,6 @@ func (v *vector) compareBytes(t *testing.T, got, want []byte) {
 	}
 }
 
-//nolint:revive //just a test
 func (v *vector) test(t *testing.T) {
 	params, server, client := v.SetUpParties(t)
 
@@ -255,7 +253,7 @@ func (v *vector) test(t *testing.T) {
 		if v.Mode == ModeVOPRF || v.Mode == ModePOPRF {
 			randomness := toScalar(t, params.Group(), vi.Proof.R, "invalid proof random scalar")
 
-			var proof encoding.BinaryMarshaler
+			var proof []byte
 
 			switch v.Mode { //nolint:exhaustive //no need case modeOPRF
 			case ModeVOPRF:
@@ -286,9 +284,7 @@ func (v *vector) test(t *testing.T) {
 				test.CheckNoErr(t, err, "failed proof generation")
 			}
 
-			proofBytes, errr := proof.MarshalBinary()
-			test.CheckNoErr(t, errr, "failed proof marshaling")
-			v.compareBytes(t, proofBytes, toBytes(t, vi.Proof.Proof, "proof"))
+			v.compareBytes(t, proof, toBytes(t, vi.Proof.Proof, "proof"))
 		}
 
 		outputs, err := client.Finalize(finData, eval)

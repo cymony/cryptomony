@@ -13,7 +13,7 @@ import (
 	"github.com/cymony/cryptomony/utils"
 )
 
-func produceProof(g eccgroup.Group, mode ModeType, s Suite, k *eccgroup.Scalar, a, b *eccgroup.Element, c, d []*eccgroup.Element, rnd *eccgroup.Scalar) (dleq.Proof, error) {
+func produceProof(g eccgroup.Group, mode ModeType, s Suite, k *eccgroup.Scalar, a, b *eccgroup.Element, c, d []*eccgroup.Element, rnd *eccgroup.Scalar) ([]byte, error) {
 	cnf := &dleq.Configuration{
 		Group: g,
 		DST:   createContextString(mode, s),
@@ -24,7 +24,7 @@ func produceProof(g eccgroup.Group, mode ModeType, s Suite, k *eccgroup.Scalar, 
 		return nil, err
 	}
 
-	var proof dleq.Proof
+	var proof []byte
 	if rnd == nil {
 		proof, err = prover.GenerateProof(k, a, b, c, d)
 		if err != nil {
@@ -41,7 +41,7 @@ func produceProof(g eccgroup.Group, mode ModeType, s Suite, k *eccgroup.Scalar, 
 }
 
 // produceVerify returns non-nil error if verification failed, and nil otherwise.
-func produceVerify(g eccgroup.Group, mode ModeType, s Suite, a, b *eccgroup.Element, c, d []*eccgroup.Element, proof dleq.Proof) error {
+func produceVerify(g eccgroup.Group, mode ModeType, s Suite, a, b *eccgroup.Element, c, d []*eccgroup.Element, proof []byte) error {
 	cnf := &dleq.Configuration{
 		Group: g,
 		DST:   createContextString(mode, s),

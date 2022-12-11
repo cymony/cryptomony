@@ -5,19 +5,23 @@
 package oprf
 
 import (
-	"github.com/cymony/cryptomony/dleq"
 	"github.com/cymony/cryptomony/eccgroup"
 )
 
+// EvaluationRequest identify the message send from client to server
+// for Evaluation operation
 type EvaluationRequest struct {
 	BlindedElements []*eccgroup.Element
 }
 
+// EvaluationResponse identify the message send from server to client
+// as evaluation operation response
 type EvaluationResponse struct {
-	Proof             dleq.Proof
+	Proof             []byte
 	EvaluatedElements []*eccgroup.Element
 }
 
+// FinalizeData identify the state to keep on client
 type FinalizeData struct {
 	EvalRequest *EvaluationRequest
 	Inputs      [][]byte

@@ -283,7 +283,6 @@ func TestErrors(t *testing.T) {
 	})
 }
 
-//nolint:revive //example
 func Example_oprf() {
 	suite := SuiteP256Sha256
 	//   Server(sk, pk, info*)

@@ -12,7 +12,7 @@ type client struct {
 }
 
 func (c client) validate(finData *FinalizeData, evalRes *EvaluationResponse) error {
-	if l := len(finData.Blinds); len(evalRes.EvaluatedElements) != l {
+	if l := len(finData.Blinds); len(finData.EvalRequest.BlindedElements) != l || len(evalRes.EvaluatedElements) != l {
 		return ErrInputValidation
 	}
 
@@ -26,10 +26,14 @@ func (c client) blind(inputs [][]byte, blinds []*eccgroup.Scalar) ([]*eccgroup.E
 
 	for i := range inputs {
 		inputElement := c.s.Group().HashToGroup(inputs[i], dst)
+
+		// if inputElement == G.Identity(): raise InvalidInputError
 		if inputElement.IsIdentity() {
 			return nil, ErrInvalidInput
 		}
 
+		//nolint:gocritic //not a commented code
+		// blindedElement = blind * inputElement
 		blindedElement := c.s.Group().NewElement().Set(inputElement).Multiply(blinds[i])
 		blindedElements[i] = blindedElement
 	}
