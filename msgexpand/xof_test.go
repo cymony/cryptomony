@@ -43,7 +43,7 @@ func TestXOFExpandErrors(t *testing.T) {
 			len:       65536,
 			msg:       "test",
 			wantErr:   true,
-			wantedErr: ErrLengthTooHigh,
+			wantedErr: errLengthTooHigh,
 		},
 	}
 
