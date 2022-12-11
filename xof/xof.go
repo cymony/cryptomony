@@ -44,10 +44,10 @@ type XOF interface {
 type Extendable uint
 
 const (
-	SHAKE128 Extendable = 1 + iota
-	SHAKE256
-	BLAKE2XB
-	BLAKE2XS
+	SHAKE128 Extendable = 1 + iota //nolint:revive //no need doc
+	SHAKE256                       //nolint:revive //no need doc
+	BLAKE2XB                       //nolint:revive //no need doc
+	BLAKE2XS                       //nolint:revive //no need doc
 )
 
 const (

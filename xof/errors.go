@@ -7,6 +7,8 @@ package xof
 import "errors"
 
 var (
+	// ErrMismatchLengthWrite returns when hash's write operation writes wrong length of data
 	ErrMismatchLengthWrite = errors.New("hash: mismatch requested data and written data lengths")
-	ErrMismatchLengthRead  = errors.New("hash: mismatch requested data and read data lengths")
+	// ErrMismatchLengthRead returns when hash's read operation reads wrong length of data
+	ErrMismatchLengthRead = errors.New("hash: mismatch requested data and read data lengths")
 )
