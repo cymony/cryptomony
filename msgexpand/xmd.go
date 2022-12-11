@@ -53,7 +53,7 @@ func (me *messageExpandXMD) expandXMD(msg, dst []byte, lenInBytes int) ([]byte, 
 
 	// ABORT if ell > 255 or len_in_bytes > 65535 or len(DST) > 255
 	if uint(ell) > 255 || lenInBytes > math.MaxUint16 || len(dst) > 255 {
-		return nil, ErrLengthTooHigh
+		return nil, errLengthTooHigh
 	}
 
 	//nolint:gocritic //not a commented code

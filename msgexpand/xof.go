@@ -17,7 +17,7 @@ type messageExpandXOF struct {
 	k  int
 }
 
-// NewExpanderXOF returns an expander based on an extendable output functions.
+// NewMessageExpandXOF returns an expander based on an extendable output functions.
 // The kSecLevel parameter is the target security level in bits.
 func NewMessageExpandXOF(id xof.Extendable, secLevel int) MessageExpand {
 	return &messageExpandXOF{id: id, k: secLevel}
@@ -43,7 +43,7 @@ func (me *messageExpandXOF) expandXOF(msg, dst []byte, lenInBytes, k int) ([]byt
 
 	// ABORT if len_in_bytes > 65535 or len(DST) > 255
 	if lenInBytes > math.MaxUint16 || len(dst) > 255 {
-		return nil, ErrLengthTooHigh
+		return nil, errLengthTooHigh
 	}
 
 	//nolint:gocritic //not a commented code
