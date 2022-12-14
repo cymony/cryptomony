@@ -6,14 +6,19 @@ package opaque
 
 import (
 	"github.com/cymony/cryptomony/opaque/internal/common"
+	"github.com/cymony/cryptomony/utils"
 )
 
+// CleartextCredentials represents the CleartextCredentials struct on the draft.
+// Reference: https://www.ietf.org/archive/id/draft-irtf-cfrg-opaque-09.html#name-client-credential-storage-a
 type CleartextCredentials struct {
 	ServerPublicKey []byte
 	ServerIdentity  []byte
 	ClientIdentity  []byte
 }
 
+// CreateCleartextCredentials implements the CreateCleartextCredentials function on the draft.
+// Reference: https://www.ietf.org/archive/id/draft-irtf-cfrg-opaque-09.html#name-client-credential-storage-a
 func CreateCleartextCredentials(sPubKey, cPubKey, serverIdentity, clientIdentity []byte) *CleartextCredentials {
 	if len(serverIdentity) == 0 {
 		serverIdentity = sPubKey
@@ -33,13 +38,21 @@ func CreateCleartextCredentials(sPubKey, cPubKey, serverIdentity, clientIdentity
 // Encode encodes server public key, server identity and client identity to byte array.
 // To Decode, use the Decode function only
 func (cc *CleartextCredentials) Encode() ([]byte, error) {
-	return common.Encoder(2, cc.ServerPublicKey, cc.ServerIdentity, cc.ClientIdentity)
+	encoded, err := common.Encoder(2, cc.ServerIdentity, cc.ClientIdentity)
+	if err != nil {
+		return nil, err
+	}
+
+	return utils.Concat(cc.ServerPublicKey, encoded), nil
 }
 
 // Decode decodes given data into the struct.
 // Given data must be output of Encode function
-func (cc *CleartextCredentials) Decode(data []byte) error {
-	decoded, err := common.Decoder(data, 3, 2)
+func (cc *CleartextCredentials) Decode(suite Suite, data []byte) error {
+	serverPubKey := data[:suite.OPRF().Group().ScalarLength()]
+	cc.ServerPublicKey = serverPubKey
+
+	decoded, err := common.Decoder(data[suite.OPRF().Group().ScalarLength():], 2, 2)
 	if err != nil {
 		return err
 	}
@@ -47,10 +60,8 @@ func (cc *CleartextCredentials) Decode(data []byte) error {
 	for i, val := range decoded {
 		switch i {
 		case 0:
-			cc.ServerPublicKey = val
-		case 1:
 			cc.ServerIdentity = val
-		case 2:
+		case 1:
 			cc.ClientIdentity = val
 		}
 	}

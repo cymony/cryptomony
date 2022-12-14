@@ -12,8 +12,16 @@ import (
 )
 
 func TestCleartextCredsEncodeDecode(t *testing.T) {
+	priv, err := Ristretto255Suite.New().GenerateKeyPair()
+	test.CheckNoErr(t, err, "key generate err")
+
+	pub := priv.Public()
+
+	encodedPub, err := pub.MarshalBinary()
+	test.CheckNoErr(t, err, "pub marshal err")
+
 	tstCred := &CleartextCredentials{
-		ServerPublicKey: []byte("this is server public key"),
+		ServerPublicKey: encodedPub,
 		ServerIdentity:  []byte("this is server identity"),
 		ClientIdentity:  []byte("this is client identity"),
 	}
@@ -22,7 +30,7 @@ func TestCleartextCredsEncodeDecode(t *testing.T) {
 	test.CheckNoErr(t, err, "encode err")
 
 	newCred := &CleartextCredentials{}
-	err = newCred.Decode(encoded)
+	err = newCred.Decode(Ristretto255Suite.New(), encoded)
 	test.CheckNoErr(t, err, "decode err")
 
 	if !bytes.Equal(tstCred.ServerPublicKey, newCred.ServerPublicKey) ||

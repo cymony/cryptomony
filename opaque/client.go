@@ -4,14 +4,24 @@
 
 package opaque
 
+// Client interface represents the client instance.
 type Client interface {
+	// CreateRegistrationRequest computes blinded message and returns (RegistrationRequest, blind).
+	// Returned blind is client private value to be use in FinalizeRegistrationRequest and it must not send to server.
+	// Reference: https://www.ietf.org/archive/id/draft-irtf-cfrg-opaque-09.html#name-createregistrationrequest
 	CreateRegistrationRequest(password []byte) (clRegState *ClientRegistrationState, regReq *RegistrationRequest, err error)
+	// FinalizeRegistrationRequest generates RegistrationRecord to store on server side.
+	// Reference: https://www.ietf.org/archive/id/draft-irtf-cfrg-opaque-09.html#name-finalizeregistrationrequest
 	FinalizeRegistrationRequest(clRegState *ClientRegistrationState, clientIdentity, regRes []byte) (regRec *RegistrationRecord, exportKey []byte, err error)
-
+	// ClientInit function begins the AKE protocol and produces the client's KE1 output for the server.
+	// Reference: https://www.ietf.org/archive/id/draft-irtf-cfrg-opaque-09.html#name-clientinit
 	ClientInit(password []byte) (clLoginState *ClientLoginState, ke1Message *KE1, err error)
+	// The ClientFinish function completes the AKE protocol for the client and produces the client's KE3 output for the server, as well as the session_key and export_key outputs from the AKE.
+	// Reference: https://www.ietf.org/archive/id/draft-irtf-cfrg-opaque-09.html#name-clientfinish
 	ClientFinish(clLoginState *ClientLoginState, clientIdentity []byte, ke2 []byte) (ke3Message *KE3, sessionKey []byte, exportKey []byte, err error)
 }
 
+// ClientConfiguration contains configurations to initialize client instance
 type ClientConfiguration struct {
 	OpaqueSuite Suite  // Chosen Opaque Suite
 	ServerID    []byte // Server Identity. Usually, domain name
@@ -22,11 +32,12 @@ type client struct {
 	serverIdentity []byte
 }
 
-func NewClient(conf *ClientConfiguration) (Client, error) {
+// NewClient initializes the client instance according to configuration
+func NewClient(conf *ClientConfiguration) Client {
 	return &client{
 		serverIdentity: conf.ServerID,
 		suite:          conf.OpaqueSuite,
-	}, nil
+	}
 }
 
 func (c *client) CreateRegistrationRequest(password []byte) (*ClientRegistrationState, *RegistrationRequest, error) {

@@ -10,25 +10,13 @@ import (
 	"github.com/cymony/cryptomony/utils"
 )
 
-// The function AuthServerRespond implements OPAQUE-3DH AuthServerRespond function.
-// Reference: https://www.ietf.org/archive/id/draft-irtf-cfrg-opaque-09.html#name-3dh-server-functions.
-// Unlike draft implementation, this function returns server state instead of managing it internally.
 func (os *opaqueSuite) AuthServerRespond(serverPrivKey *PrivateKey,
-	serverIdentity, clientIdentity []byte,
+	serverIdentity, clientIdentity, serverNonce []byte,
 	clientPubKey *PublicKey,
 	ke1 *KE1,
-	credentialRes *CredentialResponse) (*ServerLoginState, *AuthResponse, error) {
+	credentialRes *CredentialResponse,
+	serverPrivateKeyshare *PrivateKey) (*ServerLoginState, *AuthResponse, error) {
 	g := os.OPRF().Group()
-
-	//nolint:gocritic //not a commented code
-	// server_nonce = random(Nn)
-	serverNonce := utils.RandomBytes(os.Nn())
-
-	// (server_private_keyshare, server_keyshare) = GenerateAuthKeyPair()
-	serverPrivateKeyshare, err := os.GenerateAuthKeyPair()
-	if err != nil {
-		return nil, nil, err
-	}
 
 	serverKeyshare := serverPrivateKeyshare.Public()
 
@@ -39,7 +27,7 @@ func (os *opaqueSuite) AuthServerRespond(serverPrivKey *PrivateKey,
 	// 	credential_response,
 	// 	server_nonce,
 	// 	server_keyshare)
-	prmbl, err := preamble(clientIdentity, ke1, serverIdentity, credentialRes, serverNonce, serverKeyshare)
+	prmbl, err := preamble(clientIdentity, ke1, serverIdentity, credentialRes, serverNonce, serverKeyshare, os.context)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -128,8 +116,6 @@ func (os *opaqueSuite) AuthServerRespond(serverPrivKey *PrivateKey,
 	}, nil
 }
 
-// The function AuthServerFinalize implements OPAQUE-3DH AuthServerFinalize function.
-// Reference: https://www.ietf.org/archive/id/draft-irtf-cfrg-opaque-09.html#name-3dh-server-functions.
 func (os *opaqueSuite) AuthServerFinalize(state *ServerLoginState, ke3 *KE3) ([]byte, error) {
 	if !hmac.Equal(ke3.ClientMAC, state.ExpectedClientMac) {
 		return nil, ErrClientAuthentication

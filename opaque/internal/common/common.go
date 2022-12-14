@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-3 Clause
 // license that can be found in the LICENSE file.
 
+// Package common implements commonly used functions on the opaque package.
 package common
 
 import (
@@ -21,7 +22,7 @@ func I2ospLenX(data []byte, x int) ([]byte, error) {
 	return utils.Concat(i2ospLenXData, data), nil
 }
 
-// The encoder automatically encodes the data with x length descriptors
+// Encoder automatically encodes the data with x length descriptors
 func Encoder(x int, inputs ...[]byte) ([]byte, error) {
 	var out []byte
 

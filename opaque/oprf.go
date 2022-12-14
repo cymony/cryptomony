@@ -9,15 +9,16 @@ import (
 	"github.com/cymony/cryptomony/oprf"
 )
 
-func (os *opaqueSuite) blind(password []byte) (*eccgroup.Scalar, *eccgroup.Element, error) {
+func (os *opaqueSuite) deterministicBlind(password []byte, blind *eccgroup.Scalar) (*eccgroup.Scalar, *eccgroup.Element, error) {
 	oprfCl, err := oprf.NewClient(os.OPRF())
 	if err != nil {
 		return nil, nil, err
 	}
 
 	inputs := [][]byte{password}
+	blinds := []*eccgroup.Scalar{blind}
 
-	finData, evalReq, err := oprfCl.Blind(inputs)
+	findData, evalReq, err := oprfCl.DeterministicBlind(inputs, blinds)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -26,12 +27,13 @@ func (os *opaqueSuite) blind(password []byte) (*eccgroup.Scalar, *eccgroup.Eleme
 		return nil, nil, ErrOPRFBlind
 	}
 
-	if len(finData.Blinds) != 1 {
+	if len(findData.Blinds) != 1 {
 		return nil, nil, ErrOPRFBlind
 	}
 
 	blindedEl := evalReq.BlindedElements[0]
-	blindSc := finData.Blinds[0]
+
+	blindSc := findData.Blinds[0]
 
 	return blindSc, blindedEl, nil
 }
