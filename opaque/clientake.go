@@ -34,6 +34,9 @@ func (os *opaqueSuite) clientInit(password, chosenClientNonce []byte, chosenBlin
 	//nolint:gocritic //not a commented code
 	//  ke1 = AuthClientStart(request)
 	state, ke1, err := os.AuthClientStart(credReq, chosenClientNonce, chosenClientSecret)
+	if err != nil {
+		return nil, nil, err
+	}
 
 	return &ClientLoginState{
 		Password:     password,

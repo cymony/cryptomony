@@ -57,7 +57,7 @@ func (os *opaqueSuite) serverInit(serverPrivKey *PrivateKey,
 	}
 
 	if serverIdentity == nil {
-		encodedSPubkey, err := serverPubKey.MarshalBinary()
+		encodedSPubkey, err := serverPubKey.MarshalBinary() //nolint:govet //fp
 		if err != nil {
 			return nil, nil, err
 		}

@@ -9,12 +9,16 @@ import (
 	"github.com/cymony/cryptomony/utils"
 )
 
+// CleartextCredentials represents the CleartextCredentials struct on the draft.
+// Reference: https://www.ietf.org/archive/id/draft-irtf-cfrg-opaque-09.html#name-client-credential-storage-a
 type CleartextCredentials struct {
 	ServerPublicKey []byte
 	ServerIdentity  []byte
 	ClientIdentity  []byte
 }
 
+// CreateCleartextCredentials implements the CreateCleartextCredentials function on the draft.
+// Reference: https://www.ietf.org/archive/id/draft-irtf-cfrg-opaque-09.html#name-client-credential-storage-a
 func CreateCleartextCredentials(sPubKey, cPubKey, serverIdentity, clientIdentity []byte) *CleartextCredentials {
 	if len(serverIdentity) == 0 {
 		serverIdentity = sPubKey

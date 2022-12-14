@@ -10,15 +10,19 @@ import (
 	"github.com/cymony/cryptomony/utils"
 )
 
+// RegistrationRequest represents the first message sent from client to server on registration.
+// Reference: https://www.ietf.org/archive/id/draft-irtf-cfrg-opaque-09.html#name-registration-messages
 type RegistrationRequest struct {
 	BlindedMessage *eccgroup.Element // blinded_message[Noe]
 }
 
-func (rr *RegistrationRequest) serialize() ([]byte, error) {
+// Serialize serializes the RegistrationRequest to bytes
+func (rr *RegistrationRequest) Serialize() ([]byte, error) {
 	return rr.BlindedMessage.MarshalBinary()
 }
 
-func (rr *RegistrationRequest) deserialize(suite Suite, data []byte) error {
+// Deserialize deserializes bytes into the RegistrationRequest struct
+func (rr *RegistrationRequest) Deserialize(suite Suite, data []byte) error {
 	if len(data) != suite.Noe() {
 		return ErrDeserializationFailed
 	}
@@ -35,6 +39,7 @@ func (rr *RegistrationRequest) deserialize(suite Suite, data []byte) error {
 	return nil
 }
 
+// Encode serializes the RegistrationRequest into bytes but with 2 byte length descriptors.
 func (rr *RegistrationRequest) Encode() ([]byte, error) {
 	if rr.BlindedMessage == nil {
 		return nil, ErrEncodingFailed
@@ -48,21 +53,25 @@ func (rr *RegistrationRequest) Encode() ([]byte, error) {
 	return encoded, nil
 }
 
+// Decode deserializes encoded data into the RegistrationRequest struct.
 func (rr *RegistrationRequest) Decode(suite Suite, data []byte) error {
 	decoded, err := common.Decoder(data, 1, 2)
 	if err != nil {
 		return ErrDecodingFailed
 	}
 
-	return rr.deserialize(suite, utils.Concat(decoded...))
+	return rr.Deserialize(suite, utils.Concat(decoded...))
 }
 
+// RegistrationResponse represents the second message sent from server to client on registration.
+// Reference: https://www.ietf.org/archive/id/draft-irtf-cfrg-opaque-09.html#name-registration-messages
 type RegistrationResponse struct {
 	EvaluatedMessage *eccgroup.Element // evaluated_message[Noe]
 	ServerPublicKey  *PublicKey        // server_public_key[Npk]
 }
 
-func (rr *RegistrationResponse) serialize() ([]byte, error) {
+// Serialize serializes the RegistrationResponse to bytes
+func (rr *RegistrationResponse) Serialize() ([]byte, error) {
 	eEl, err := rr.EvaluatedMessage.MarshalBinary()
 	if err != nil {
 		return nil, err
@@ -76,7 +85,8 @@ func (rr *RegistrationResponse) serialize() ([]byte, error) {
 	return utils.Concat(eEl, sPub), nil
 }
 
-func (rr *RegistrationResponse) deserialize(suite Suite, data []byte) error {
+// Deserialize deserializes bytes into the RegistrationResponse struct
+func (rr *RegistrationResponse) Deserialize(suite Suite, data []byte) error {
 	if len(data) != suite.Noe()+suite.Npk() {
 		return ErrDeserializationFailed
 	}
@@ -95,6 +105,7 @@ func (rr *RegistrationResponse) deserialize(suite Suite, data []byte) error {
 	return nil
 }
 
+// Encode serializes the RegistrationResponse into bytes but with 2 byte length descriptors.
 func (rr *RegistrationResponse) Encode() ([]byte, error) {
 	if rr.EvaluatedMessage == nil || rr.ServerPublicKey == nil {
 		return nil, ErrEncodingFailed
@@ -113,15 +124,18 @@ func (rr *RegistrationResponse) Encode() ([]byte, error) {
 	return encoded, nil
 }
 
+// Decode deserializes encoded data into the RegistrationResponse struct.
 func (rr *RegistrationResponse) Decode(suite Suite, data []byte) error {
 	decoded, err := common.Decoder(data, 2, 2)
 	if err != nil {
 		return ErrDecodingFailed
 	}
 
-	return rr.deserialize(suite, utils.Concat(decoded...))
+	return rr.Deserialize(suite, utils.Concat(decoded...))
 }
 
+// RegistrationRecord represents the third message sent from client to server on registration.
+// Reference: https://www.ietf.org/archive/id/draft-irtf-cfrg-opaque-09.html#name-registration-messages
 type RegistrationRecord struct {
 	Envelope     *Envelope  // envelope[Ne]
 	ClientPubKey *PublicKey // client_public_key[Npk]
@@ -129,7 +143,8 @@ type RegistrationRecord struct {
 
 }
 
-func (rr *RegistrationRecord) serialize() ([]byte, error) {
+// Serialize serializes the RegistrationRecord to bytes
+func (rr *RegistrationRecord) Serialize() ([]byte, error) {
 	serializedClientPubKey, err := rr.ClientPubKey.MarshalBinary()
 	if err != nil {
 		return nil, err
@@ -143,7 +158,8 @@ func (rr *RegistrationRecord) serialize() ([]byte, error) {
 	return utils.Concat(serializedClientPubKey, rr.MaskingKey, serializedEnvelope), nil
 }
 
-func (rr *RegistrationRecord) deserialize(suite Suite, data []byte) error {
+// Deserialize deserializes bytes into the RegistrationRecord struct
+func (rr *RegistrationRecord) Deserialize(suite Suite, data []byte) error {
 	if len(data) != suite.Npk()+suite.Nh()+suite.Ne() {
 		return ErrDeserializationFailed
 	}
@@ -160,6 +176,7 @@ func (rr *RegistrationRecord) deserialize(suite Suite, data []byte) error {
 	return rr.Envelope.Deserialize(suite, data[suite.Npk()+suite.Nh():])
 }
 
+// Encode serializes the RegistrationRecord into bytes but with 2 byte length descriptors.
 func (rr *RegistrationRecord) Encode() ([]byte, error) {
 	if rr.ClientPubKey == nil || rr.Envelope == nil || len(rr.MaskingKey) == 0 {
 		return nil, ErrEncodingFailed
@@ -183,11 +200,12 @@ func (rr *RegistrationRecord) Encode() ([]byte, error) {
 	return utils.Concat(encoded, encodedEnvelope), nil
 }
 
+// Decode deserializes encoded data into the RegistrationRecord struct.
 func (rr *RegistrationRecord) Decode(suite Suite, data []byte) error {
 	decoded, err := common.Decoder(data, 4, 2)
 	if err != nil {
 		return ErrDecodingFailed
 	}
 
-	return rr.deserialize(suite, utils.Concat(decoded...))
+	return rr.Deserialize(suite, utils.Concat(decoded...))
 }

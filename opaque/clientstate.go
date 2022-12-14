@@ -6,11 +6,17 @@ package opaque
 
 import "github.com/cymony/cryptomony/eccgroup"
 
+// ClientRegistrationState represents the client's registration state
+// to give FinalizeRegistrationRequest function as parameter.
+// This library does not manage the state internally.
 type ClientRegistrationState struct {
 	Blind    *eccgroup.Scalar
 	Password []byte
 }
 
+// ClientLoginState represents the client's ake state
+// to give ClientFinish function as parameter.
+// This library does not manage the state internally.
 type ClientLoginState struct {
 	Blind        *eccgroup.Scalar
 	ClientSecret *PrivateKey

@@ -9,8 +9,6 @@ import (
 	"github.com/cymony/cryptomony/utils"
 )
 
-// The CreateCredentialRequest is used by the client to initiate the credential retrieval process, and it produces a CredentialRequest message and OPRF state.
-// Reference: https://www.ietf.org/archive/id/draft-irtf-cfrg-opaque-09.html#name-createcredentialrequest.
 func (os *opaqueSuite) CreateCredentialRequest(password []byte, chosenBlind *eccgroup.Scalar) (*CredentialRequest, *eccgroup.Scalar, error) {
 	blind, blindedEl, err := os.deterministicBlind(password, chosenBlind)
 	if err != nil {
@@ -22,8 +20,6 @@ func (os *opaqueSuite) CreateCredentialRequest(password []byte, chosenBlind *ecc
 	}, blind, nil
 }
 
-// The CreateCredentialResponse function is used by the server to process the client's CredentialRequest message and complete the credential retrieval process, producing a CredentialResponse.
-// Reference: https://www.ietf.org/archive/id/draft-irtf-cfrg-opaque-09.html#name-createcredentialresponse.
 func (os *opaqueSuite) CreateCredentialResponse(credReq *CredentialRequest,
 	serverPubKey *PublicKey,
 	record *RegistrationRecord,
@@ -77,8 +73,6 @@ func (os *opaqueSuite) CreateCredentialResponse(credReq *CredentialRequest,
 	}, nil
 }
 
-// The RecoverCredentials function is used by the client to process the server's CredentialResponse message and produce the client's private key, server public key, and the export_key.
-// Reference: https://www.ietf.org/archive/id/draft-irtf-cfrg-opaque-09.html#name-recovercredentials.
 func (os *opaqueSuite) RecoverCredentials(password []byte, blind *eccgroup.Scalar, credRes *CredentialResponse, serverIdentity, clientIdentity []byte) (*PrivateKey, *PublicKey, []byte, error) {
 	//nolint:gocritic //not a commented code
 	// oprf_output = Finalize(password, blind, evaluated_element)

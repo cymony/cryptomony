@@ -9,8 +9,6 @@ import (
 	"github.com/cymony/cryptomony/utils"
 )
 
-// CreateRegistrationRequest computes blinded message and returns (RegistrationRequest, blind).
-// Returned blind is client private value to be use in FinalizeRegistrationRequest and it must not send to server.
 func (os *opaqueSuite) CreateRegistrationRequest(password []byte) (*RegistrationRequest, *eccgroup.Scalar, error) {
 	chosenBlind := os.Group().RandomScalar()
 

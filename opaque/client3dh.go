@@ -10,9 +10,6 @@ import (
 	"github.com/cymony/cryptomony/utils"
 )
 
-// The function AuthClientStart implements OPAQUE-3DH AuthClientStart function.
-// Reference: https://www.ietf.org/archive/id/draft-irtf-cfrg-opaque-09.html#name-3dh-client-functions
-// Unlike draft implementation, this function returns client state instead of managing it internally.
 func (os *opaqueSuite) AuthClientStart(credentialReq *CredentialRequest, clientNonce []byte, clientSecret *PrivateKey) (*ClientLoginState, *KE1, error) {
 	clientKeyshare := clientSecret.Public()
 
@@ -33,8 +30,6 @@ func (os *opaqueSuite) AuthClientStart(credentialReq *CredentialRequest, clientN
 	}, ke1, nil
 }
 
-// The function AuthClientFinalize implements OPAQUE-3DH AuthClientFinalize function.
-// Reference: https://www.ietf.org/archive/id/draft-irtf-cfrg-opaque-09.html#name-3dh-client-functions
 func (os *opaqueSuite) AuthClientFinalize(state *ClientLoginState,
 	clientIdentity, serverIdentity []byte,
 	cPrivKey *PrivateKey,

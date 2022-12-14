@@ -10,9 +10,6 @@ import (
 	"github.com/cymony/cryptomony/utils"
 )
 
-// The function AuthServerRespond implements OPAQUE-3DH AuthServerRespond function.
-// Reference: https://www.ietf.org/archive/id/draft-irtf-cfrg-opaque-09.html#name-3dh-server-functions.
-// Unlike draft implementation, this function returns server state instead of managing it internally.
 func (os *opaqueSuite) AuthServerRespond(serverPrivKey *PrivateKey,
 	serverIdentity, clientIdentity, serverNonce []byte,
 	clientPubKey *PublicKey,
@@ -119,8 +116,6 @@ func (os *opaqueSuite) AuthServerRespond(serverPrivKey *PrivateKey,
 	}, nil
 }
 
-// The function AuthServerFinalize implements OPAQUE-3DH AuthServerFinalize function.
-// Reference: https://www.ietf.org/archive/id/draft-irtf-cfrg-opaque-09.html#name-3dh-server-functions.
 func (os *opaqueSuite) AuthServerFinalize(state *ServerLoginState, ke3 *KE3) ([]byte, error) {
 	if !hmac.Equal(ke3.ClientMAC, state.ExpectedClientMac) {
 		return nil, ErrClientAuthentication

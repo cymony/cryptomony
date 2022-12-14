@@ -4,6 +4,9 @@
 
 package opaque
 
+// ServerLoginState represents the server's ake state
+// to give ServerFinish function as parameter.
+// This library does not manage the state internally.
 type ServerLoginState struct {
 	ExpectedClientMac []byte
 	SessionKey        []byte

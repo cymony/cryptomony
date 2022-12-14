@@ -160,6 +160,7 @@ func getFakeEnvelope(oSuite Suite) []byte {
 	return make([]byte, oSuite.Ne())
 }
 
+//nolint:gocyclo //test
 func (v *vector) testLogin(t *testing.T, oSuite Suite) {
 	t.Helper()
 
@@ -204,12 +205,12 @@ func (v *vector) testLogin(t *testing.T, oSuite Suite) {
 
 	record := &RegistrationRecord{}
 	if !isFake(t, v.Config.Fake) {
-		err := record.deserialize(suite, v.Outputs.RegistrationRecord)
+		err := record.Deserialize(suite, v.Outputs.RegistrationRecord)
 		test.CheckNoErr(t, err, "registration record deserialization err")
 	} else {
 		fakeEnvelope := getFakeEnvelope(oSuite)
 		fakeRecord := utils.Concat(v.Inputs.ClientPublicKey, v.Inputs.MaskingKey, fakeEnvelope)
-		err := record.deserialize(suite, fakeRecord)
+		err := record.Deserialize(suite, fakeRecord)
 		test.CheckNoErr(t, err, "fake record deserialization err")
 	}
 
@@ -244,6 +245,7 @@ func (v *vector) testLogin(t *testing.T, oSuite Suite) {
 		v.Inputs.ServerNonce,
 		serverPrivateKeyshare,
 	)
+	test.CheckNoErr(t, err, "server init err")
 
 	KE2Vector := &KE2{}
 
@@ -332,7 +334,7 @@ func (v *vector) testRegistration(t *testing.T, oSuite Suite) {
 	regReq, _, err := suite.createRegistrationRequest(v.Inputs.Password, regBlind)
 	test.CheckNoErr(t, err, "create registration req err")
 
-	serializedRegReq, err := regReq.serialize()
+	serializedRegReq, err := regReq.Serialize()
 	test.CheckNoErr(t, err, "registration req serialization err")
 
 	if !bytes.Equal(v.Outputs.RegistrationRequest, serializedRegReq) {
@@ -346,7 +348,7 @@ func (v *vector) testRegistration(t *testing.T, oSuite Suite) {
 	regRes, err := suite.CreateRegistrationResponse(regReq, sPubKey, v.Inputs.CredentialIdentifier, v.Inputs.OprfSeed)
 	test.CheckNoErr(t, err, "create registration res err")
 
-	serializedRegRes, err := regRes.serialize()
+	serializedRegRes, err := regRes.Serialize()
 	test.CheckNoErr(t, err, "registration res serialization err")
 
 	if !bytes.Equal(v.Outputs.RegistrationResponse, serializedRegRes) {
@@ -367,7 +369,7 @@ func (v *vector) testRegistration(t *testing.T, oSuite Suite) {
 		test.Report(t, serializedEnvelope, v.Intermediates.Envelope, "finalize registration envelopes not equal")
 	}
 
-	serializedRegRecord, err := regRecord.serialize()
+	serializedRegRecord, err := regRecord.Serialize()
 	test.CheckNoErr(t, err, "registration record serialization err")
 
 	if !bytes.Equal(v.Outputs.RegistrationRecord, serializedRegRecord) {

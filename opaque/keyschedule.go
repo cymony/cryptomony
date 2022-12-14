@@ -81,7 +81,7 @@ func preamble(clientIdentity []byte,
 		return nil, err
 	}
 
-	encodedCredRes, err := credRes.serialize()
+	encodedCredRes, err := credRes.Serialize()
 	if err != nil {
 		return nil, err
 	}
