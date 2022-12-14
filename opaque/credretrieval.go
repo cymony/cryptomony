@@ -11,8 +11,8 @@ import (
 
 // The CreateCredentialRequest is used by the client to initiate the credential retrieval process, and it produces a CredentialRequest message and OPRF state.
 // Reference: https://www.ietf.org/archive/id/draft-irtf-cfrg-opaque-09.html#name-createcredentialrequest.
-func (os *opaqueSuite) CreateCredentialRequest(password []byte) (*CredentialRequest, *eccgroup.Scalar, error) {
-	blind, blindedEl, err := os.blind(password)
+func (os *opaqueSuite) CreateCredentialRequest(password []byte, chosenBlind *eccgroup.Scalar) (*CredentialRequest, *eccgroup.Scalar, error) {
+	blind, blindedEl, err := os.deterministicBlind(password, chosenBlind)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -28,7 +28,8 @@ func (os *opaqueSuite) CreateCredentialResponse(credReq *CredentialRequest,
 	serverPubKey *PublicKey,
 	record *RegistrationRecord,
 	credIdentifier []byte,
-	oprfSeed []byte) (*CredentialResponse, error) {
+	oprfSeed []byte,
+	maskingNonce []byte) (*CredentialResponse, error) {
 	if len(oprfSeed) != os.Nh() {
 		return nil, ErrOPRFSeedLength
 	}
@@ -49,10 +50,6 @@ func (os *opaqueSuite) CreateCredentialResponse(credReq *CredentialRequest,
 	if err != nil {
 		return nil, err
 	}
-
-	//nolint:gocritic //not a commented code
-	//   masking_nonce = random(Nn)
-	maskingNonce := utils.RandomBytes(os.Nn())
 
 	//nolint:gocritic //not a commented code
 	// credential_response_pad = Expand(record.masking_key, concat(masking_nonce, "CredentialResponsePad"), Npk+Ne)

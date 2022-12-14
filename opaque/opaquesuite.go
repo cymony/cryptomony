@@ -12,8 +12,8 @@ import (
 )
 
 var (
-	Ristretto255Suite Suite = &opaqueSuite{oprf: oprf.SuiteRistretto255Sha512, group: eccgroup.Ristretto255Sha512, ksf: ksf.Scrypt, kdf: hash.SHA512, mac: hash.SHA512, hsh: hash.SHA512}
-	P256Suite         Suite = &opaqueSuite{oprf: oprf.SuiteP256Sha256, group: eccgroup.P256Sha256, ksf: ksf.Scrypt, kdf: hash.SHA256, mac: hash.SHA256, hsh: hash.SHA256}
+	Ristretto255Suite Suite = &opaqueSuite{oprf: oprf.SuiteRistretto255Sha512, group: eccgroup.Ristretto255Sha512, ksf: ksf.Scrypt, kdf: hash.SHA512, mac: hash.SHA512, hsh: hash.SHA512, context: []byte(libContext)}
+	P256Suite         Suite = &opaqueSuite{oprf: oprf.SuiteP256Sha256, group: eccgroup.P256Sha256, ksf: ksf.Scrypt, kdf: hash.SHA256, mac: hash.SHA256, hsh: hash.SHA256, context: []byte(libContext)}
 )
 
 type Suite interface {
@@ -71,10 +71,10 @@ type Suite interface {
 	//
 	// The CreateCredentialRequest is used by the client to initiate the credential retrieval process, and it produces a CredentialRequest message and OPRF state.
 	// Reference: https://www.ietf.org/archive/id/draft-irtf-cfrg-opaque-09.html#name-createcredentialrequest.
-	CreateCredentialRequest(password []byte) (*CredentialRequest, *eccgroup.Scalar, error)
+	CreateCredentialRequest(password []byte, chosenBlind *eccgroup.Scalar) (*CredentialRequest, *eccgroup.Scalar, error)
 	// The CreateCredentialResponse function is used by the server to process the client's CredentialRequest message and complete the credential retrieval process, producing a CredentialResponse.
 	// Reference: https://www.ietf.org/archive/id/draft-irtf-cfrg-opaque-09.html#name-createcredentialresponse.
-	CreateCredentialResponse(credReq *CredentialRequest, serverPubKey *PublicKey, record *RegistrationRecord, credIdentifier []byte, oprfSeed []byte) (*CredentialResponse, error)
+	CreateCredentialResponse(credReq *CredentialRequest, serverPubKey *PublicKey, record *RegistrationRecord, credIdentifier, oprfSeed, maskingNonce []byte) (*CredentialResponse, error)
 	// The RecoverCredentials function is used by the client to process the server's CredentialResponse message and produce the client's private key, server public key, and the export_key.
 	// Reference: https://www.ietf.org/archive/id/draft-irtf-cfrg-opaque-09.html#name-recovercredentials.
 	RecoverCredentials(password []byte, blind *eccgroup.Scalar, credRes *CredentialResponse, serverIdentity, clientIdentity []byte) (*PrivateKey, *PublicKey, []byte, error)
@@ -95,14 +95,14 @@ type Suite interface {
 	// The function AuthClientStart implements OPAQUE-3DH AuthClientStart function.
 	// Reference: https://www.ietf.org/archive/id/draft-irtf-cfrg-opaque-09.html#name-3dh-client-functions.
 	// Unlike draft implementation, this function returns client state instead of managing it internally.
-	AuthClientStart(credentialReq *CredentialRequest) (*ClientLoginState, *KE1, error)
+	AuthClientStart(credentialReq *CredentialRequest, clientNonce []byte, clientSecret *PrivateKey) (*ClientLoginState, *KE1, error)
 	// The function AuthClientFinalize implements OPAQUE-3DH AuthClientFinalize function.
 	// Reference: https://www.ietf.org/archive/id/draft-irtf-cfrg-opaque-09.html#name-3dh-client-functions.
 	AuthClientFinalize(state *ClientLoginState, clientIdentity, serverIdentity []byte, cPrivKey *PrivateKey, sPubKey *PublicKey, ke2 *KE2) (*KE3, []byte, error)
 	// The function AuthServerRespond implements OPAQUE-3DH AuthServerRespond function.
 	// Reference: https://www.ietf.org/archive/id/draft-irtf-cfrg-opaque-09.html#name-3dh-server-functions.
 	// Unlike draft implementation, this function returns server state instead of managing it internally.
-	AuthServerRespond(serverPrivKey *PrivateKey, serverIdentity, clientIdentity []byte, clientPubKey *PublicKey, ke1 *KE1, credentialRes *CredentialResponse) (*ServerLoginState, *AuthResponse, error)
+	AuthServerRespond(serverPrivKey *PrivateKey, serverIdentity, clientIdentity, serverNonce []byte, clientPubKey *PublicKey, ke1 *KE1, credentialRes *CredentialResponse, serverPrivateKeyshare *PrivateKey) (*ServerLoginState, *AuthResponse, error)
 	// The function AuthServerFinalize implements OPAQUE-3DH AuthServerFinalize function.
 	// Reference: https://www.ietf.org/archive/id/draft-irtf-cfrg-opaque-09.html#name-3dh-server-functions.
 	AuthServerFinalize(state *ServerLoginState, ke3 *KE3) ([]byte, error)
@@ -134,12 +134,13 @@ type Suite interface {
 }
 
 type opaqueSuite struct {
-	oprf  oprf.Suite
-	kdf   hash.Hashing
-	ksf   ksf.Identifier
-	mac   hash.Hashing
-	group eccgroup.Group
-	hsh   hash.Hashing
+	oprf    oprf.Suite
+	kdf     hash.Hashing
+	ksf     ksf.Identifier
+	mac     hash.Hashing
+	group   eccgroup.Group
+	hsh     hash.Hashing
+	context []byte
 }
 
 func (os *opaqueSuite) OPRF() oprf.Suite {

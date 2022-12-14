@@ -9,8 +9,10 @@ package ksf
 type Identifier uint
 
 const (
+	// Identity identifier
+	Identity Identifier = iota
 	// Argon2id identfier
-	Argon2id Identifier = 1 + iota
+	Argon2id
 	// Bcrypt identifier
 	Bcrypt
 	// Scrypt identifier
@@ -20,6 +22,8 @@ const (
 // New returns a new KSF instance of receiver identifier
 func (i Identifier) New() KSF {
 	switch i {
+	case Identity:
+		return newIdentity()
 	case Argon2id:
 		return newArgon2id()
 	case Bcrypt:

@@ -50,11 +50,15 @@ func (e *Envelope) Decode(suite Suite, data []byte) error {
 }
 
 func (os *opaqueSuite) Store(randomizedPwd []byte, sPubKey *PublicKey, serverIdentity, clientIdentity []byte) (*Envelope, *PublicKey, []byte, []byte, error) {
-	Nh := os.Nh()
-
 	//nolint:gocritic //not a commented code
 	// envelope_nonce = random(Nn)
 	envelopeNonce := utils.RandomBytes(os.Nn())
+
+	return os.store(randomizedPwd, sPubKey, serverIdentity, clientIdentity, envelopeNonce)
+}
+
+func (os *opaqueSuite) store(randomizedPwd []byte, sPubKey *PublicKey, serverIdentity, clientIdentity, envelopeNonce []byte) (*Envelope, *PublicKey, []byte, []byte, error) {
+	Nh := os.Nh()
 
 	//nolint:gocritic //not a commented code
 	//  masking_key = Expand(randomized_pwd, "MaskingKey", Nh)

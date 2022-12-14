@@ -22,11 +22,11 @@ type client struct {
 	serverIdentity []byte
 }
 
-func NewClient(conf *ClientConfiguration) (Client, error) {
+func NewClient(conf *ClientConfiguration) Client {
 	return &client{
 		serverIdentity: conf.ServerID,
 		suite:          conf.OpaqueSuite,
-	}, nil
+	}
 }
 
 func (c *client) CreateRegistrationRequest(password []byte) (*ClientRegistrationState, *RegistrationRequest, error) {

@@ -58,8 +58,9 @@ func preamble(clientIdentity []byte,
 	serverIdentity []byte,
 	credRes *CredentialResponse,
 	sNonce []byte,
-	sKeyshare *PublicKey) ([]byte, error) {
-	ctx2LenI2osp2, err := common.I2ospLenX([]byte(libContext), 2)
+	sKeyshare *PublicKey, context []byte) ([]byte, error) {
+	// Vector encoding
+	ctx2LenI2osp2, err := common.I2ospLenX(context, 2)
 	if err != nil {
 		return nil, err
 	}
@@ -69,12 +70,13 @@ func preamble(clientIdentity []byte,
 		return nil, err
 	}
 
-	encodedKE1, err := ke1.Serialize()
+	sIdentityLenI2osp2, err := common.I2ospLenX(serverIdentity, 2)
 	if err != nil {
 		return nil, err
 	}
 
-	sIdentityLenI2osp2, err := common.I2ospLenX(serverIdentity, 2)
+	// Serialize
+	encodedKE1, err := ke1.Serialize()
 	if err != nil {
 		return nil, err
 	}

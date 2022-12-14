@@ -14,6 +14,10 @@ type RegistrationRequest struct {
 	BlindedMessage *eccgroup.Element // blinded_message[Noe]
 }
 
+func (rr *RegistrationRequest) serialize() ([]byte, error) {
+	return rr.BlindedMessage.MarshalBinary()
+}
+
 func (rr *RegistrationRequest) deserialize(suite Suite, data []byte) error {
 	if len(data) != suite.Noe() {
 		return ErrDeserializationFailed
@@ -56,6 +60,20 @@ func (rr *RegistrationRequest) Decode(suite Suite, data []byte) error {
 type RegistrationResponse struct {
 	EvaluatedMessage *eccgroup.Element // evaluated_message[Noe]
 	ServerPublicKey  *PublicKey        // server_public_key[Npk]
+}
+
+func (rr *RegistrationResponse) serialize() ([]byte, error) {
+	eEl, err := rr.EvaluatedMessage.MarshalBinary()
+	if err != nil {
+		return nil, err
+	}
+
+	sPub, err := rr.ServerPublicKey.MarshalBinary()
+	if err != nil {
+		return nil, err
+	}
+
+	return utils.Concat(eEl, sPub), nil
 }
 
 func (rr *RegistrationResponse) deserialize(suite Suite, data []byte) error {
@@ -109,6 +127,20 @@ type RegistrationRecord struct {
 	ClientPubKey *PublicKey // client_public_key[Npk]
 	MaskingKey   []byte     // masking_key[Nh]
 
+}
+
+func (rr *RegistrationRecord) serialize() ([]byte, error) {
+	serializedClientPubKey, err := rr.ClientPubKey.MarshalBinary()
+	if err != nil {
+		return nil, err
+	}
+
+	serializedEnvelope, err := rr.Envelope.Serialize()
+	if err != nil {
+		return nil, err
+	}
+
+	return utils.Concat(serializedClientPubKey, rr.MaskingKey, serializedEnvelope), nil
 }
 
 func (rr *RegistrationRecord) deserialize(suite Suite, data []byte) error {

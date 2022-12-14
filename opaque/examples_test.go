@@ -38,8 +38,7 @@ func Example_registration() {
 		OpaqueSuite: opaque.Ristretto255Suite, // Suite with recommended setup. Must be same on server
 	}
 
-	client, err := opaque.NewClient(&clientConf)
-	logFatalln(err)
+	client := opaque.NewClient(&clientConf)
 
 	// chosenUserID is the email address for registration
 	chosenUserID := []byte("anemail@domain.com")
