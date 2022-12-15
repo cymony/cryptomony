@@ -36,3 +36,26 @@ jobs:
 
             - name: Linting
               uses: golangci/golangci-lint-action@v3
+
+            - name: Testing
+              run: go test -v -count=1 ./...
+    codeql:
+        name: CodeQL
+        runs-on: ubuntu-latest
+        permissions:
+            actions: read
+            contents: read
+            security-events: write
+        steps:
+            - name: Checkout Source Code
+              uses: actions/checkout@v3
+
+            - name: CodeQL Init
+              uses: github/codeql-action/init@v2
+              with:
+                  languages: go
+
+            - name: CodeQL Analysis
+              uses: github/codeql-action/analyze@v2
+              with:
+                  category: '/language:go'
