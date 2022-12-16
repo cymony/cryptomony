@@ -1,7 +1,8 @@
-// Copyright (c) 2022 The Cymony Authors. All rights reserved.
-// Use of this source code is governed by a BSD-3 Clause
+// Copyright (c) 2022 Cymony Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
+// Package test provides ready to use test functions. It makes test functions more readable
 package test
 
 import (
@@ -16,19 +17,19 @@ func Report(tb testing.TB, got, want interface{}, inputs ...interface{}) {
 	tb.Helper()
 
 	builder := &strings.Builder{}
-	fmt.Fprintf(builder, "\n") //nolint:revive //no need check err
+	fmt.Fprintf(builder, "\n")
 
 	for i, in := range inputs {
-		fmt.Fprintf(builder, "input[%v]: %v\n", i, in) //nolint:revive //no need check err
+		fmt.Fprintf(builder, "input[%v]: %v\n", i, in)
 	}
 
-	fmt.Fprintf(builder, "got:  %v\nwant: %v\n", got, want) //nolint:revive //no need check err
+	fmt.Fprintf(builder, "got:  %v\nwant: %v\n", got, want)
 	tb.Helper()
 	tb.Fatalf(builder.String())
 }
 
 // CheckOk fails the test if result == false.
-func CheckOk(tb testing.TB, result bool, msg string) { //nolint:revive //necessary for functionality
+func CheckOk(tb testing.TB, result bool, msg string) {
 	tb.Helper()
 
 	if !result {
@@ -38,7 +39,7 @@ func CheckOk(tb testing.TB, result bool, msg string) { //nolint:revive //necessa
 
 // checkErr fails on error condition. mustFail indicates whether err is expected
 // to be nil or not.
-func checkErr(tb testing.TB, err error, mustFail bool, msg string) { //nolint:revive //necessary for functionality
+func checkErr(tb testing.TB, err error, mustFail bool, msg string) {
 	tb.Helper()
 
 	if err != nil && !mustFail {

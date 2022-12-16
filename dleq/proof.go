@@ -1,38 +1,23 @@
-// Copyright (c) 2022 The Cymony Authors. All rights reserved.
-// Use of this source code is governed by a BSD-3 Clause
+// Copyright (c) 2022 Cymony Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
 package dleq
 
 import (
-	"encoding"
-	"encoding/base64"
-	"fmt"
 	"io"
 
 	"github.com/cymony/cryptomony/eccgroup"
 )
 
-// Proof represents generated proofs
-type Proof interface {
-	// BinaryMarshaler returns a byte representation of proof.
-	encoding.BinaryMarshaler
-	// BinaryUnmarshaler recovers an proof from a byte representation produced by encoding.BinaryMarshaler.
-	encoding.BinaryUnmarshaler
-
-	// TextMarshaler returns a base64 standard string encoding of the proof.
-	encoding.TextMarshaler
-
-	// TextUnmarshaler sets the base64 standard string encoding of the proof produced by encoding.TextMarshaler
-	encoding.TextUnmarshaler
-}
-
+// prf struct represents dleq proof
 type prf struct {
 	s, c *eccgroup.Scalar
 	g    eccgroup.Group
 }
 
-func newProof(g eccgroup.Group, s, c *eccgroup.Scalar) Proof {
+// newProof creates a new dleq proof representation
+func newProof(g eccgroup.Group, s, c *eccgroup.Scalar) *prf {
 	return &prf{
 		g: g,
 		s: s,
@@ -40,8 +25,8 @@ func newProof(g eccgroup.Group, s, c *eccgroup.Scalar) Proof {
 	}
 }
 
-// MarshalBinary implements the encoding.BinaryMarshaler interface.
-func (p *prf) MarshalBinary() ([]byte, error) {
+// marshalBinary is marshaling proof into byte and returns error if exists
+func (p *prf) marshalBinary() ([]byte, error) {
 	sSize := p.g.ScalarLength()
 	out := make([]byte, int(2*sSize))
 
@@ -62,8 +47,8 @@ func (p *prf) MarshalBinary() ([]byte, error) {
 	return out, nil
 }
 
-// UnmarshalBinary implements the encoding.BinaryUnmarshaler interface.
-func (p *prf) UnmarshalBinary(data []byte) error {
+// unmarshalBinary is unmarshaling given bytes into the prf struct and returns error if exists
+func (p *prf) unmarshalBinary(data []byte) error {
 	sSize := p.g.ScalarLength()
 	if len(data) < int(2*sSize) {
 		return io.ErrShortBuffer
@@ -83,24 +68,4 @@ func (p *prf) UnmarshalBinary(data []byte) error {
 	p.s = s
 
 	return nil
-}
-
-// MarshalText implements the encoding.TextMarshaler interface.
-func (p *prf) MarshalText() (text []byte, err error) {
-	b, err := p.MarshalBinary()
-	if err != nil {
-		return nil, err
-	}
-
-	return []byte(base64.StdEncoding.EncodeToString(b)), nil
-}
-
-// UnmarshalText implements the encoding.TextUnmarshaler interface.
-func (p *prf) UnmarshalText(text []byte) error {
-	sb, err := base64.StdEncoding.DecodeString(string(text))
-	if err != nil {
-		return fmt.Errorf("proof unmarshalText err: %w", err)
-	}
-
-	return p.UnmarshalBinary(sb)
 }

@@ -1,5 +1,5 @@
-// Copyright (c) 2022 The Cymony Authors. All rights reserved.
-// Use of this source code is governed by a BSD-3 Clause
+// Copyright (c) 2022 Cymony Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
 package dleq
@@ -7,5 +7,6 @@ package dleq
 import "errors"
 
 var (
-	ErrUnsupportedGroup = errors.New("unsupported group")
+	// ErrUnsupportedGroup raises when unsupported group passed to Configuration struct
+	ErrUnsupportedGroup = errors.New("dleq: unsupported group")
 )

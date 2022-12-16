@@ -1,22 +1,29 @@
-// Copyright (c) 2022 The Cymony Authors. All rights reserved.
-// Use of this source code is governed by a BSD-3 Clause
+// Copyright (c) 2022 Cymony Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
 // Package ksf is a small wrapper around built-in cryptographic key strech functions to make their usage easier and safer
 package ksf
 
+// Identifier is the type for supported ksf functions
 type Identifier uint
 
 const (
-	// Supported algorithms' identifiers
-	Argon2id Identifier = 1 + iota
+	// Identity identifier
+	Identity Identifier = iota
+	// Argon2id identfier
+	Argon2id
+	// Bcrypt identifier
 	Bcrypt
+	// Scrypt identifier
 	Scrypt
 )
 
 // New returns a new KSF instance of receiver identifier
 func (i Identifier) New() KSF {
 	switch i {
+	case Identity:
+		return newIdentity()
 	case Argon2id:
 		return newArgon2id()
 	case Bcrypt:

@@ -1,5 +1,5 @@
-// Copyright (c) 2022 The Cymony Authors. All rights reserved.
-// Use of this source code is governed by a BSD-3 Clause
+// Copyright (c) 2022 Cymony Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
 package opaque
@@ -58,8 +58,9 @@ func preamble(clientIdentity []byte,
 	serverIdentity []byte,
 	credRes *CredentialResponse,
 	sNonce []byte,
-	sKeyshare *PublicKey) ([]byte, error) {
-	ctx2LenI2osp2, err := common.I2ospLenX([]byte(libContext), 2)
+	sKeyshare *PublicKey, context []byte) ([]byte, error) {
+	// Vector encoding
+	ctx2LenI2osp2, err := common.I2ospLenX(context, 2)
 	if err != nil {
 		return nil, err
 	}
@@ -69,17 +70,18 @@ func preamble(clientIdentity []byte,
 		return nil, err
 	}
 
-	encodedKE1, err := ke1.Serialize()
-	if err != nil {
-		return nil, err
-	}
-
 	sIdentityLenI2osp2, err := common.I2ospLenX(serverIdentity, 2)
 	if err != nil {
 		return nil, err
 	}
 
-	encodedCredRes, err := credRes.serialize()
+	// Serialize
+	encodedKE1, err := ke1.Serialize()
+	if err != nil {
+		return nil, err
+	}
+
+	encodedCredRes, err := credRes.Serialize()
 	if err != nil {
 		return nil, err
 	}

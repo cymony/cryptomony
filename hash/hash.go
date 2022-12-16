@@ -1,5 +1,5 @@
-// Copyright (c) 2022 The Cymony Authors. All rights reserved.
-// Use of this source code is governed by a BSD-3 Clause
+// Copyright (c) 2022 Cymony Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
 // Package hash is a small wrapper around built-in cryptographic hash functions to make their usage easier.
@@ -24,6 +24,7 @@ import (
 	_ "golang.org/x/crypto/sha3"
 )
 
+// Hash interface wraps standart library's hash.Hash interface with additional functions to make usage easier.
 type Hash interface {
 	// Write (via the embedded io.Writer interface) adds more data to the running hash.
 	// It never returns an error.
@@ -67,13 +68,14 @@ type Hash interface {
 	HKDFExpand(pseudorandomKey, info []byte, length int) []byte
 }
 
+// Hashing is type wrapper for crypto.Hash types
 type Hashing uint
 
 const (
-	SHA224      = Hashing(crypto.SHA224)
-	SHA256      = Hashing(crypto.SHA256)
-	SHA384      = Hashing(crypto.SHA384)
-	SHA512      = Hashing(crypto.SHA512)
+	SHA224      = Hashing(crypto.SHA224)      //nolint:revive // because of compatibility with crypto library
+	SHA256      = Hashing(crypto.SHA256)      //nolint:revive // because of compatibility with crypto library
+	SHA384      = Hashing(crypto.SHA384)      //nolint:revive // because of compatibility with crypto library
+	SHA512      = Hashing(crypto.SHA512)      //nolint:revive // because of compatibility with crypto library
 	SHA3_224    = Hashing(crypto.SHA3_224)    //nolint:revive,stylecheck // because of compatibility with crypto library
 	SHA3_256    = Hashing(crypto.SHA3_256)    //nolint:revive,stylecheck // because of compatibility with crypto library
 	SHA3_384    = Hashing(crypto.SHA3_384)    //nolint:revive,stylecheck // because of compatibility with crypto library

@@ -5,21 +5,21 @@ run:
 skip-dirs:
     - assets # megalinter results+fixes
 
+issues:
+    include:
+      - EXC0002
+      - EXC0011
+      - EXC0012
+      - EXC0013
+      - EXC0014
+      - EXC0015
+
 linters-settings:
     errcheck:
         check-type-assertions: true
         check-blank: true
         ignore: fmt:.*
         disable-default-exclusions: false
-    goconst:
-        match-constant: true
-        min-len: 2
-        min-occurrences: 3
-        ignore-tests: false
-        ignore-calls: true
-        numbers: false
-        min: 3
-        max: 3
     gocritic:
         enabled-tags:
             - diagnostic
@@ -44,60 +44,6 @@ linters-settings:
     depguard:
         list-type: blacklist
         include-go-root: true
-    revive:
-        ignore-generated-header: true
-        severity: warning
-        rules:
-            - name: bare-return
-            - name: blank-imports
-            - name: bool-literal-in-expr
-            - name: call-to-gc
-            - name: confusing-results
-            - name: constant-logical-expr
-            - name: context-as-argument
-            - name: context-keys-type
-            - name: deep-exit
-            - name: defer
-              arguments: [['call-chain', 'loop']]
-            - name: dot-imports
-            - name: duplicated-imports
-            - name: early-return
-            - name: empty-block
-            - name: empty-lines
-            - name: error-naming
-            - name: error-return
-            - name: error-strings
-            - name: errorf
-            - name: exported
-            - name: flag-parameter
-            - name: get-return
-            - name: identical-branches
-            - name: if-return
-            - name: increment-decrement
-            - name: indent-error-flow
-            - name: import-shadowing
-            - name: modifies-parameter
-            - name: modifies-value-receiver
-            - name: package-comments
-            - name: range
-            - name: range-val-in-closure
-            - name: range-val-address
-            - name: receiver-naming
-            - name: redefines-builtin-id
-            - name: string-of-int
-            - name: string-format
-            - name: struct-tag
-            - name: superfluous-else
-            - name: time-naming
-            - name: var-naming
-            - name: var-declaration
-            - name: unconditional-recursion
-            - name: unexported-return
-            - name: unhandled-error
-            - name: unnecessary-stmt
-            - name: unreachable-code
-            - name: unused-parameter
-            - name: waitgroup-by-value
 
 linters:
     disable-all: true

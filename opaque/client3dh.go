@@ -1,5 +1,5 @@
-// Copyright (c) 2022 The Cymony Authors. All rights reserved.
-// Use of this source code is governed by a BSD-3 Clause
+// Copyright (c) 2022 Cymony Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
 package opaque
@@ -10,22 +10,9 @@ import (
 	"github.com/cymony/cryptomony/utils"
 )
 
-// The function AuthClientStart implements OPAQUE-3DH AuthClientStart function.
-// Reference: https://www.ietf.org/archive/id/draft-irtf-cfrg-opaque-09.html#name-3dh-client-functions
-// Unlike draft implementation, this function returns client state instead of managing it internally.
-func (os *opaqueSuite) AuthClientStart(credentialReq *CredentialRequest) (*ClientLoginState, *KE1, error) {
-	//nolint:gocritic // not a commented code
-	// client_nonce = random(Nn)
-	clientNonce := utils.RandomBytes(os.Nn())
-	// (client_secret, client_keyshare) = GenerateAuthKeyPair()
-	clientSecret, err := os.GenerateAuthKeyPair()
-	if err != nil {
-		return nil, nil, err
-	}
-
+func (os *opaqueSuite) AuthClientStart(credentialReq *CredentialRequest, clientNonce []byte, clientSecret *PrivateKey) (*ClientLoginState, *KE1, error) {
 	clientKeyshare := clientSecret.Public()
 
-	// Create AuthRequest auth_request with (client_nonce, client_keyshare)
 	authRequest := &AuthRequest{
 		ClientNonce:    clientNonce,
 		ClientKeyshare: clientKeyshare,
@@ -43,8 +30,6 @@ func (os *opaqueSuite) AuthClientStart(credentialReq *CredentialRequest) (*Clien
 	}, ke1, nil
 }
 
-// The function AuthClientFinalize implements OPAQUE-3DH AuthClientFinalize function.
-// Reference: https://www.ietf.org/archive/id/draft-irtf-cfrg-opaque-09.html#name-3dh-client-functions
 func (os *opaqueSuite) AuthClientFinalize(state *ClientLoginState,
 	clientIdentity, serverIdentity []byte,
 	cPrivKey *PrivateKey,
@@ -84,7 +69,7 @@ func (os *opaqueSuite) AuthClientFinalize(state *ClientLoginState,
 	// ikm = concat(dh1, dh2, dh3)
 	ikm := utils.Concat(dh1, dh2, dh3)
 
-	prmbl, err := preamble(clientIdentity, state.KE1, serverIdentity, ke2.CredentialResponse, ke2.AuthResponse.ServerNonce, ke2.AuthResponse.ServerKeyshare)
+	prmbl, err := preamble(clientIdentity, state.KE1, serverIdentity, ke2.CredentialResponse, ke2.AuthResponse.ServerNonce, ke2.AuthResponse.ServerKeyshare, os.context)
 	if err != nil {
 		return nil, nil, err
 	}

@@ -1,5 +1,5 @@
-// Copyright (c) 2022 The Cymony Authors. All rights reserved.
-// Use of this source code is governed by a BSD-3 Clause
+// Copyright (c) 2022 Cymony Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
 package nist
@@ -138,7 +138,7 @@ func (f field) exponent(x, y, z *big.Int) *big.Int {
 }
 
 // cmov sets x to z if cond = true; y else; returns x
-func (f field) cmov(x, y, z *big.Int, cond bool) *big.Int { //nolint:revive //necessary for functionality
+func (f field) cmov(x, y, z *big.Int, cond bool) *big.Int {
 	if cond {
 		x.Set(z)
 	} else {

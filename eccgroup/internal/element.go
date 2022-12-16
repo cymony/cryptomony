@@ -1,11 +1,12 @@
-// Copyright (c) 2022 The Cymony Authors. All rights reserved.
-// Use of this source code is governed by a BSD-3 Clause
+// Copyright (c) 2022 Cymony Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
 package internal
 
 import "encoding"
 
+// Element interface represents the element of underlying curve's element
 type Element interface {
 	// Base sets the element to the group's base point a.k.a. canonical generator.
 	Base() Element

@@ -1,5 +1,5 @@
-// Copyright (c) 2022 The Cymony Authors. All rights reserved.
-// Use of this source code is governed by a BSD-3 Clause
+// Copyright (c) 2022 Cymony Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
 package oprf
@@ -11,21 +11,24 @@ import (
 	"github.com/cymony/cryptomony/utils"
 )
 
+// PrivateKey identify the private key according to group
 type PrivateKey struct {
 	s   Suite
 	k   *eccgroup.Scalar
 	pub *PublicKey
 }
 
-// MarshalBinary
+// MarshalBinary marshals the private key to bytes
 func (priv *PrivateKey) MarshalBinary() ([]byte, error) {
 	return priv.k.MarshalBinary()
 }
 
+// MarshalText marshals the private key to base64 encoded bytes
 func (priv *PrivateKey) MarshalText() ([]byte, error) {
 	return priv.k.MarshalText()
 }
 
+// UnmarshalBinary unmarshals given data to PrivateKey struct according to given suite
 func (priv *PrivateKey) UnmarshalBinary(s Suite, data []byte) error {
 	if !isSuiteAvailable(s) {
 		return ErrInvalidSuite
@@ -37,6 +40,7 @@ func (priv *PrivateKey) UnmarshalBinary(s Suite, data []byte) error {
 	return priv.k.UnmarshalBinary(data)
 }
 
+// UnmarshalText unmarshals given data to PrivateKey struct according to given suite
 func (priv *PrivateKey) UnmarshalText(s Suite, text []byte) error {
 	if !isSuiteAvailable(s) {
 		return ErrInvalidSuite
@@ -48,6 +52,7 @@ func (priv *PrivateKey) UnmarshalText(s Suite, text []byte) error {
 	return priv.k.UnmarshalText(text)
 }
 
+// Public returns corresponding public key
 func (priv *PrivateKey) Public() *PublicKey {
 	if priv.pub == nil {
 		priv.pub = &PublicKey{priv.s, priv.s.Group().NewElement().Base().Multiply(priv.k)}
@@ -56,19 +61,23 @@ func (priv *PrivateKey) Public() *PublicKey {
 	return priv.pub
 }
 
+// PublicKey identify the public key according to group
 type PublicKey struct {
 	s Suite
 	e *eccgroup.Element
 }
 
+// MarshalBinary marshals the public key to bytes
 func (pub *PublicKey) MarshalBinary() ([]byte, error) {
 	return pub.e.MarshalBinary()
 }
 
+// MarshalText marshals the public key to base64 encoded bytes
 func (pub *PublicKey) MarshalText() ([]byte, error) {
 	return pub.e.MarshalText()
 }
 
+// UnmarshalBinary unmarshals given data to PublicKey struct according to given suite
 func (pub *PublicKey) UnmarshalBinary(s Suite, data []byte) error {
 	if !isSuiteAvailable(s) {
 		return ErrInvalidSuite
@@ -80,6 +89,7 @@ func (pub *PublicKey) UnmarshalBinary(s Suite, data []byte) error {
 	return pub.e.UnmarshalBinary(data)
 }
 
+// UnmarshalText unmarshals given data to PublicKey struct according to given suite
 func (pub *PublicKey) UnmarshalText(s Suite, text []byte) error {
 	if !isSuiteAvailable(s) {
 		return ErrInvalidSuite

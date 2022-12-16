@@ -1,5 +1,5 @@
-// Copyright (c) 2022 The Cymony Authors. All rights reserved.
-// Use of this source code is governed by a BSD-3 Clause
+// Copyright (c) 2022 Cymony Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
 /*
@@ -58,16 +58,16 @@ func newDleq(c *Configuration) (*dlq, error) {
 	return &d, nil
 }
 
-func (dl *dlq) GenerateProof(k *eccgroup.Scalar, a, b *eccgroup.Element, c, d []*eccgroup.Element) (Proof, error) {
+func (dl *dlq) GenerateProof(k *eccgroup.Scalar, a, b *eccgroup.Element, c, d []*eccgroup.Element) ([]byte, error) {
 	return dl.generateProof(k, a, b, c, d, nil)
 }
 
-func (dl *dlq) GenerateProofWithRandomness(k *eccgroup.Scalar, a, b *eccgroup.Element, c, d []*eccgroup.Element, rnd *eccgroup.Scalar) (Proof, error) {
+func (dl *dlq) GenerateProofWithRandomness(k *eccgroup.Scalar, a, b *eccgroup.Element, c, d []*eccgroup.Element, rnd *eccgroup.Scalar) ([]byte, error) {
 	return dl.generateProof(k, a, b, c, d, rnd)
 }
 
 // See https://www.ietf.org/archive/id/draft-irtf-cfrg-voprf-14.html#name-proof-generation
-func (dl *dlq) generateProof(k *eccgroup.Scalar, a, b *eccgroup.Element, c, d []*eccgroup.Element, rnd *eccgroup.Scalar) (Proof, error) {
+func (dl *dlq) generateProof(k *eccgroup.Scalar, a, b *eccgroup.Element, c, d []*eccgroup.Element, rnd *eccgroup.Scalar) ([]byte, error) {
 	M, Z, err := dl.computeComposites(k, b, c, d)
 	if err != nil {
 		return nil, err
@@ -160,16 +160,25 @@ func (dl *dlq) generateProof(k *eccgroup.Scalar, a, b *eccgroup.Element, c, d []
 	// s = (r - c * k) mod G.Order()
 	s := dl.c.Group.NewScalar().Add(r).Subtract(dl.c.Group.NewScalar().Add(k).Multiply(cc))
 
-	return newProof(dl.c.Group, s, cc), nil
+	prf := newProof(dl.c.Group, s, cc)
+
+	return prf.marshalBinary()
 }
 
-func (dl *dlq) VerifyProof(a, b *eccgroup.Element, c, d []*eccgroup.Element, proof Proof) bool {
+func (dl *dlq) VerifyProof(a, b *eccgroup.Element, c, d []*eccgroup.Element, proof []byte) bool {
 	M, Z, err := dl.computeComposites(nil, b, c, d)
 	if err != nil {
 		panic(err)
 	}
 
-	pB, err := proof.MarshalBinary()
+	p := &prf{g: dl.c.Group}
+
+	err = p.unmarshalBinary(proof)
+	if err != nil {
+		panic(err)
+	}
+
+	pB, err := p.marshalBinary()
 	if err != nil {
 		panic(err)
 	}

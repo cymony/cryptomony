@@ -1,5 +1,5 @@
-// Copyright (c) 2022 The Cymony Authors. All rights reserved.
-// Use of this source code is governed by a BSD-3 Clause
+// Copyright (c) 2022 Cymony Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
 package opaque
@@ -11,15 +11,19 @@ import (
 	"github.com/cymony/cryptomony/utils"
 )
 
+// Envelope represents the envelope struct on the draft.
+// Reference: https://www.ietf.org/archive/id/draft-irtf-cfrg-opaque-09.html#name-envelope-structure
 type Envelope struct {
 	Nonce   []byte // nonce[Nn]
 	AuthTag []byte // auth_tag[Nm]
 }
 
+// Serialize serializes the Envelope to bytes
 func (e *Envelope) Serialize() ([]byte, error) {
 	return utils.Concat(e.Nonce, e.AuthTag), nil
 }
 
+// Deserialize deserializes bytes into the Envelope struct
 func (e *Envelope) Deserialize(suite Suite, data []byte) error {
 	if len(data) != suite.Nn()+suite.Nm() {
 		return ErrDeserializationFailed
@@ -31,6 +35,7 @@ func (e *Envelope) Deserialize(suite Suite, data []byte) error {
 	return nil
 }
 
+// Encode serializes the Envelope into bytes but with 2 byte length descriptors.
 func (e *Envelope) Encode() ([]byte, error) {
 	encoded, err := common.Encoder(2, e.Nonce, e.AuthTag)
 	if err != nil {
@@ -40,6 +45,7 @@ func (e *Envelope) Encode() ([]byte, error) {
 	return encoded, nil
 }
 
+// Decode deserializes encoded data into the Envelope struct.
 func (e *Envelope) Decode(suite Suite, data []byte) error {
 	decoded, err := common.Decoder(data, 2, 2)
 	if err != nil {
@@ -50,11 +56,15 @@ func (e *Envelope) Decode(suite Suite, data []byte) error {
 }
 
 func (os *opaqueSuite) Store(randomizedPwd []byte, sPubKey *PublicKey, serverIdentity, clientIdentity []byte) (*Envelope, *PublicKey, []byte, []byte, error) {
-	Nh := os.Nh()
-
 	//nolint:gocritic //not a commented code
 	// envelope_nonce = random(Nn)
 	envelopeNonce := utils.RandomBytes(os.Nn())
+
+	return os.store(randomizedPwd, sPubKey, serverIdentity, clientIdentity, envelopeNonce)
+}
+
+func (os *opaqueSuite) store(randomizedPwd []byte, sPubKey *PublicKey, serverIdentity, clientIdentity, envelopeNonce []byte) (*Envelope, *PublicKey, []byte, []byte, error) {
+	Nh := os.Nh()
 
 	//nolint:gocritic //not a commented code
 	//  masking_key = Expand(randomized_pwd, "MaskingKey", Nh)

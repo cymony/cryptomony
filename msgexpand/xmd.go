@@ -1,5 +1,5 @@
-// Copyright (c) 2022 The Cymony Authors. All rights reserved.
-// Use of this source code is governed by a BSD-3 Clause
+// Copyright (c) 2022 Cymony Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
 package msgexpand
@@ -53,7 +53,7 @@ func (me *messageExpandXMD) expandXMD(msg, dst []byte, lenInBytes int) ([]byte, 
 
 	// ABORT if ell > 255 or len_in_bytes > 65535 or len(DST) > 255
 	if uint(ell) > 255 || lenInBytes > math.MaxUint16 || len(dst) > 255 {
-		return nil, ErrLengthTooHigh
+		return nil, errLengthTooHigh
 	}
 
 	//nolint:gocritic //not a commented code

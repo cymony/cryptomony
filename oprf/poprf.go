@@ -1,5 +1,5 @@
-// Copyright (c) 2022 The Cymony Authors. All rights reserved.
-// Use of this source code is governed by a BSD-3 Clause
+// Copyright (c) 2022 Cymony Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
 package oprf
@@ -7,16 +7,17 @@ package oprf
 import (
 	"crypto/subtle"
 
-	"github.com/cymony/cryptomony/dleq"
 	"github.com/cymony/cryptomony/eccgroup"
 )
 
+// PartialObliviousClient is oprf client instance with mode ModePOPRF
 type PartialObliviousClient struct {
 	sPubKey    *PublicKey
 	tweakedKey *eccgroup.Element
 	client
 }
 
+// NewPartialObliviousClient returns new instance of oprf client with mode ModePOPRF
 func NewPartialObliviousClient(s Suite, sPub *PublicKey) (*PartialObliviousClient, error) {
 	if !isSuiteAvailable(s) {
 		return nil, ErrInvalidSuite
@@ -29,6 +30,7 @@ func NewPartialObliviousClient(s Suite, sPub *PublicKey) (*PartialObliviousClien
 	return &PartialObliviousClient{client: client{s, ModePOPRF}, sPubKey: sPub}, nil
 }
 
+// Blind function blinding given inputs, returns FinalizeData for Finaliza function and EvaluationRequest to send server
 func (c *PartialObliviousClient) Blind(inputs [][]byte, info []byte) (*FinalizeData, *EvaluationRequest, error) {
 	if len(inputs) == 0 {
 		return nil, nil, ErrInputValidation
@@ -53,6 +55,7 @@ func (c *PartialObliviousClient) Blind(inputs [][]byte, info []byte) (*FinalizeD
 	return finData, evalReq, nil
 }
 
+// DeterministicBlind is doing same thing with Blind but with given blinds
 func (c *PartialObliviousClient) DeterministicBlind(inputs [][]byte, blinds []*eccgroup.Scalar, info []byte) (*FinalizeData, *EvaluationRequest, error) {
 	if len(inputs) == 0 {
 		return nil, nil, ErrInputValidation
@@ -98,6 +101,7 @@ func (c *PartialObliviousClient) DeterministicBlind(inputs [][]byte, blinds []*e
 	return finData, evalReq, nil
 }
 
+// Finalize function implements the final step of POPRF evaluation
 func (c *PartialObliviousClient) Finalize(finData *FinalizeData, evalRes *EvaluationResponse, info []byte) ([][]byte, error) {
 	if err := c.client.validate(finData, evalRes); err != nil {
 		return nil, err
@@ -106,10 +110,12 @@ func (c *PartialObliviousClient) Finalize(finData *FinalizeData, evalRes *Evalua
 	return finalizePOPRF(c.client, finData.Blinds, finData.Inputs, info, c.tweakedKey, evalRes.EvaluatedElements, finData.EvalRequest.BlindedElements, evalRes.Proof)
 }
 
+// PartialObliviousServer is oprf server instance with mode ModePOPRF
 type PartialObliviousServer struct {
 	server
 }
 
+// NewPartialObliviousServer returns new instance of oprf server with mode ModePOPRF
 func NewPartialObliviousServer(s Suite, privKey *PrivateKey) (*PartialObliviousServer, error) {
 	if !isSuiteAvailable(s) {
 		return nil, ErrInvalidSuite
@@ -122,6 +128,7 @@ func NewPartialObliviousServer(s Suite, privKey *PrivateKey) (*PartialObliviousS
 	return &PartialObliviousServer{server: server{s: s, mode: ModePOPRF, privKey: privKey}}, nil
 }
 
+// BlindEvaluate evaluates blinded elements
 func (s *PartialObliviousServer) BlindEvaluate(evalReq *EvaluationRequest, info []byte) (*EvaluationResponse, error) {
 	if evalReq == nil || len(evalReq.BlindedElements) == 0 {
 		return nil, ErrInputValidation
@@ -138,6 +145,7 @@ func (s *PartialObliviousServer) BlindEvaluate(evalReq *EvaluationRequest, info 
 	}, nil
 }
 
+// FinalEvaluate is generating expected finalize output
 func (s *PartialObliviousServer) FinalEvaluate(input, info []byte) ([]byte, error) {
 	if len(input) == 0 {
 		return nil, ErrInputValidation
@@ -146,6 +154,7 @@ func (s *PartialObliviousServer) FinalEvaluate(input, info []byte) ([]byte, erro
 	return evaluatePOPRF(s.server, input, info)
 }
 
+// VerifyFinalize verifies finalize output is expected or not
 func (s *PartialObliviousServer) VerifyFinalize(input, info, exptectedOutput []byte) bool {
 	gotOut, err := s.FinalEvaluate(input, info)
 	if err != nil {
@@ -181,7 +190,7 @@ func blindPOPRF(c client, pkS *eccgroup.Element, inputs [][]byte, info []byte) (
 	return blinds, blindedElements, tweakedKey, nil
 }
 
-func blindEvaluatePOPRF(s server, blindedElements []*eccgroup.Element, info []byte) ([]*eccgroup.Element, dleq.Proof, error) {
+func blindEvaluatePOPRF(s server, blindedElements []*eccgroup.Element, info []byte) ([]*eccgroup.Element, []byte, error) {
 	dst := createHashToScalarDST(s.mode, s.s)
 	//nolint:gocritic // it is not commented code
 	// framedInfo = "Info" || I2OSP(len(info), 2) || info
@@ -193,7 +202,7 @@ func blindEvaluatePOPRF(s server, blindedElements []*eccgroup.Element, info []by
 	t := s.s.Group().NewScalar().Set(s.privKey.k).Add(m)
 	// if t == 0: raise InverseError
 	if t.IsZero() {
-		return nil, nil, ErrInverse
+		return nil, nil, errInverse
 	}
 
 	evaluatedElements := make([]*eccgroup.Element, len(blindedElements))
@@ -219,7 +228,7 @@ func blindEvaluatePOPRF(s server, blindedElements []*eccgroup.Element, info []by
 	return evaluatedElements, proof, nil
 }
 
-func finalizePOPRF(c client, blinds []*eccgroup.Scalar, inputs [][]byte, info []byte, tweakedKey *eccgroup.Element, evaluatedElements, blindedElements []*eccgroup.Element, proof dleq.Proof) ([][]byte, error) {
+func finalizePOPRF(c client, blinds []*eccgroup.Scalar, inputs [][]byte, info []byte, tweakedKey *eccgroup.Element, evaluatedElements, blindedElements []*eccgroup.Element, proof []byte) ([][]byte, error) {
 	// if VerifyProof(G.Generator(), tweakedKey, evaluatedElements, blindedElements, proof) == false: raise VerifyError
 	if err := produceVerify(c.s.Group(), c.mode, c.s, c.s.Group().Base(), tweakedKey, evaluatedElements, blindedElements, proof); err != nil {
 		return nil, err
@@ -270,7 +279,7 @@ func evaluatePOPRF(s server, input, info []byte) ([]byte, error) {
 	t := s.s.Group().NewScalar().Set(s.privKey.k).Add(m)
 	// if t == 0: raise InverseError
 	if t.IsZero() {
-		return nil, ErrInverse
+		return nil, errInverse
 	}
 
 	//nolint:gocritic // it is not commented code

@@ -1,20 +1,29 @@
-// Copyright (c) 2022 The Cymony Authors. All rights reserved.
-// Use of this source code is governed by a BSD-3 Clause
+// Copyright (c) 2022 Cymony Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
 package opaque
 
+// Server interface represents the server instance.
 type Server interface {
+	// CreateRegistrationResponse evaluates the RegistrationRequest and returns RegistrationResponse
+	// Reference: https://www.ietf.org/archive/id/draft-irtf-cfrg-opaque-09.html#name-createregistrationresponse
 	CreateRegistrationResponse(regReq []byte, credentialIdentifier, oprfSeed []byte) (*RegistrationResponse, error)
+	// ServerInit function continues the AKE protocol by processing the client's KE1 message and producing the server's KE2 output.
+	// Reference: https://www.ietf.org/archive/id/draft-irtf-cfrg-opaque-09.html#name-serverinit
 	ServerInit(clRecord []byte, ke1Message []byte, credentialIdentifier []byte, clientIdentity []byte, oprfSeed []byte) (*ServerLoginState, *KE2, error)
+	// The ServerFinish function completes the AKE protocol for the server, yielding the session_key.
+	// Reference: https://www.ietf.org/archive/id/draft-irtf-cfrg-opaque-09.html#name-serverfinish
 	ServerFinish(svLoginState *ServerLoginState, ke3Message []byte) ([]byte, error)
+	// GenerateOprfSeed generates randomly secure oprf seed with suitable length
 	GenerateOprfSeed() []byte
 }
 
+// ServerConfiguration contains configurations to initialize server instance
 type ServerConfiguration struct {
-	OpaqueSuite      Suite  // Chosen Opaque Suite
-	ServerID         []byte // Server Identity. Usually, domain name
-	ServerPrivateKey []byte // Serialized server private key value
+	ServerID         []byte     // Server Identity. Usually, domain name
+	ServerPrivateKey []byte     // Serialized server private key value
+	OpaqueSuite      Identifier // Chosen Opaque Suite
 }
 
 type server struct {
@@ -24,18 +33,21 @@ type server struct {
 	serverIdentity  []byte
 }
 
+// NewServer initializes the server instance according to configuration
 func NewServer(conf *ServerConfiguration) (Server, error) {
 	var serverPriv *PrivateKey
 
+	suite := conf.OpaqueSuite.New()
+
 	if len(conf.ServerPrivateKey) == 0 {
-		priv, err := conf.OpaqueSuite.GenerateKeyPair()
+		priv, err := suite.GenerateKeyPair()
 		if err != nil {
 			return nil, err
 		}
 
 		serverPriv = priv
 	} else {
-		if err := serverPriv.UnmarshalBinary(conf.OpaqueSuite, conf.ServerPrivateKey); err != nil {
+		if err := serverPriv.UnmarshalBinary(suite, conf.ServerPrivateKey); err != nil {
 			return nil, err
 		}
 	}
@@ -46,7 +58,7 @@ func NewServer(conf *ServerConfiguration) (Server, error) {
 		serverIdentity:  conf.ServerID,
 		serverPrivKey:   serverPriv,
 		serverPublicKey: serverPub,
-		suite:           conf.OpaqueSuite,
+		suite:           suite,
 	}, nil
 }
 

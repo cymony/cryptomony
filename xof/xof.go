@@ -1,5 +1,5 @@
-// Copyright (c) 2022 The Cymony Authors. All rights reserved.
-// Use of this source code is governed by a MIT
+// Copyright (c) 2022 Cymony Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
 // Package xof provides an interface for extendable-output functions
@@ -44,10 +44,10 @@ type XOF interface {
 type Extendable uint
 
 const (
-	SHAKE128 Extendable = 1 + iota
-	SHAKE256
-	BLAKE2XB
-	BLAKE2XS
+	SHAKE128 Extendable = 1 + iota //nolint:revive //no need doc
+	SHAKE256                       //nolint:revive //no need doc
+	BLAKE2XB                       //nolint:revive //no need doc
+	BLAKE2XS                       //nolint:revive //no need doc
 )
 
 const (
