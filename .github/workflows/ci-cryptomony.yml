@@ -1,0 +1,61 @@
+name: Cryptomony-CI
+on:
+    push:
+        branches:
+            - main
+    pull_request:
+        branches:
+            - main
+
+jobs:
+    cryptomony-pipeline:
+        name: Cryptomony Pipeline
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout Source Code
+              uses: actions/checkout@v3
+
+            - name: Setup Go
+              uses: actions/setup-go@v3
+              with:
+                  go-version: '1.19'
+
+            - name: Cache Go modules
+              uses: actions/cache@v3
+              with:
+                  path: ~/go/pkg/mod
+                  key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+                  restore-keys: |
+                      ${{ runner.os }}-go-
+
+            - name: Verify Go modules
+              run: go mod tidy && git status && git --no-pager diff && git diff-index --quiet HEAD --
+
+            - name: Verify source code formatting
+              run: go fmt ./... && git status && git --no-pager diff && git diff-index --quiet HEAD --
+
+            - name: Linting
+              uses: golangci/golangci-lint-action@v3
+
+            - name: Testing
+              run: go test -v -count=1 ./...
+    codeql:
+        name: CodeQL
+        runs-on: ubuntu-latest
+        permissions:
+            actions: read
+            contents: read
+            security-events: write
+        steps:
+            - name: Checkout Source Code
+              uses: actions/checkout@v3
+
+            - name: CodeQL Init
+              uses: github/codeql-action/init@v2
+              with:
+                  languages: go
+
+            - name: CodeQL Analysis
+              uses: github/codeql-action/analyze@v2
+              with:
+                  category: '/language:go'
