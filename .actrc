@@ -3,3 +3,4 @@
 -P ubuntu-20.04=catthehacker/ubuntu:act-20.04
 -P ubuntu-18.04=catthehacker/ubuntu:act-18.04
 --container-architecture linux/amd64
+-j cryptomony-pipeline
