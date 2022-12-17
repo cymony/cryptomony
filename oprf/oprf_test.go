@@ -283,6 +283,37 @@ func TestErrors(t *testing.T) {
 	})
 }
 
+func TestKeyMarshals(t *testing.T) {
+	priv, err := GenerateKey(SuiteRistretto255Sha512)
+	test.CheckNoErr(t, err, "generate key error")
+
+	binPriv, err := priv.MarshalBinary()
+	test.CheckNoErr(t, err, "priv binary marshal err")
+
+	err = priv.UnmarshalBinary(SuiteRistretto255Sha512, binPriv)
+	test.CheckNoErr(t, err, "priv binary unmarshal err")
+
+	textPriv, err := priv.MarshalText()
+	test.CheckNoErr(t, err, "priv text marshal err")
+
+	err = priv.UnmarshalText(SuiteRistretto255Sha512, textPriv)
+	test.CheckNoErr(t, err, "priv text unmarshal err")
+
+	pub := priv.Public()
+
+	binPub, err := pub.MarshalBinary()
+	test.CheckNoErr(t, err, "pub binary marshal err")
+
+	err = pub.UnmarshalBinary(SuiteRistretto255Sha512, binPub)
+	test.CheckNoErr(t, err, "pub binary unmarshal err")
+
+	textPub, err := pub.MarshalText()
+	test.CheckNoErr(t, err, "pub text marshal err")
+
+	err = pub.UnmarshalText(SuiteRistretto255Sha512, textPub)
+	test.CheckNoErr(t, err, "pub text unmarshal err")
+}
+
 func Example_oprf() {
 	suite := SuiteP256Sha256
 	//   Server(sk, pk, info*)
