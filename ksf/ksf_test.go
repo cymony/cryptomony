@@ -25,6 +25,24 @@ func TestKSF(t *testing.T) {
 		wantPanic       bool
 	}{
 		{
+			ksfType:         Identity,
+			optionFunctions: []Option{},
+			password:        []byte("SecretPass"),
+			salt:            nil,
+			length:          10,
+			wantErr:         false,
+			wantedErr:       nil,
+		},
+		{
+			ksfType:         Identity,
+			optionFunctions: []Option{WithArgon2Memory(1)},
+			password:        []byte("SecretPass"),
+			salt:            nil,
+			length:          10,
+			wantErr:         false,
+			wantedErr:       nil,
+		},
+		{
 			ksfType:         Scrypt,
 			optionFunctions: []Option{},
 			password:        []byte("SecretPass"),
@@ -182,6 +200,7 @@ func TestKSF(t *testing.T) {
 						test.Report(t, sc.String(), "Scrypt(8,8,8)", fmt.Sprintf("%s#%d", k.String(), i))
 					}
 				}
+
 				bc, ok := k.(*bcryptKSF)
 				if ok {
 					if bc.cost != 5 {
@@ -191,6 +210,7 @@ func TestKSF(t *testing.T) {
 						test.Report(t, bc.String(), "Bcrypt(5)", fmt.Sprintf("%s#%d", k.String(), i))
 					}
 				}
+
 				ar, ok := k.(*argon2KSF)
 				if ok {
 					if ar.time != 3 {
@@ -206,10 +226,18 @@ func TestKSF(t *testing.T) {
 						test.Report(t, ar.String(), fmt.Sprintf("%s(%d,%d,%d)", ar.str, 3, 3*1024, 3), fmt.Sprintf("%s#%d", k.String(), i))
 					}
 				}
+
+				id, ok := k.(*identity)
+				if ok {
+					if id.String() != fmt.Sprintf("%s()", id.str) {
+						test.Report(t, id.String(), fmt.Sprintf("%s()", id.str), fmt.Sprintf("%s#%d", k.String(), i))
+					}
+				}
 			}
 
 			out, err := k.Harden(v.password, v.salt, v.length)
 			test.CheckNoErr(t, err, "err not expected harden")
+
 			if len(out) != v.length {
 				test.Report(t, len(out), v.length, fmt.Sprintf("%s#%d", k.String(), i))
 			}
