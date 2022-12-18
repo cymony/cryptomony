@@ -89,6 +89,7 @@ func (e *Element) Subtract(ee internal.Element) internal.Element {
 // If s parameter is nil, then the receiver is not modified
 func (e *Element) Multiply(s internal.Scalar) internal.Element {
 	if s == nil {
+		e.Identity()
 		return e
 	}
 

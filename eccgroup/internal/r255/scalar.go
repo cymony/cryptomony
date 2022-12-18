@@ -95,6 +95,7 @@ func (s *Scalar) Subtract(ss internal.Scalar) internal.Scalar {
 // If s parameter is nil, then the receiver is not modified
 func (s *Scalar) Multiply(ss internal.Scalar) internal.Scalar {
 	if ss == nil {
+		s.Zero()
 		return s
 	}
 
@@ -129,6 +130,7 @@ func (s *Scalar) IsZero() bool {
 // Set sets the receiver to the value of the argument scalar, and returns the receiver.
 func (s *Scalar) Set(ss internal.Scalar) internal.Scalar {
 	if ss == nil {
+		s.Zero()
 		return s
 	}
 
@@ -153,7 +155,7 @@ func (s *Scalar) Encode() []byte {
 
 // Decode sets the receiver to a decoding of the input data, and returns an error on failure.
 func (s *Scalar) Decode(in []byte) error {
-	_, err := s.s.SetCanonicalBytes(in)
+	_, err := s.SetCanonicalBytes(in)
 	return err
 }
 

@@ -15,7 +15,6 @@ package eccgroup
 
 import (
 	"errors"
-	"fmt"
 	"sync"
 
 	"github.com/cymony/cryptomony/eccgroup/internal"
@@ -68,13 +67,6 @@ func (g Group) get() internal.Group {
 	return groups[g-1]
 }
 
-// MakeDST builds a domain separation tag in the form of <app>-V<version>-CS<id>-<hash-to-curve-ID>,
-// and returns no error.
-func (g Group) MakeDST(app string, version uint8) []byte {
-	p := g.get()
-	return []byte(fmt.Sprintf(dstfmt, app, version, g, p.Ciphersuite()))
-}
-
 // String returns the hash-to-curve string identifier of the ciphersuite.
 func (g Group) String() string {
 	return g.get().Ciphersuite()
@@ -106,10 +98,8 @@ func (g Group) Base() *Element {
 }
 
 func checkDST(dst []byte) {
-	if len(dst) < recommendedMinLength {
-		if len(dst) == minLength {
-			panic(errZeroLenDST)
-		}
+	if len(dst) == minLength {
+		panic(errZeroLenDST)
 	}
 }
 
