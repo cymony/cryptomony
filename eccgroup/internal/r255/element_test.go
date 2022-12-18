@@ -2,16 +2,25 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-//nolint:gocyclo // tests and benchmarks can be complex
-package eccgroup
+package r255
 
 import (
 	"testing"
 
 	"github.com/cymony/cryptomony/internal/test"
+	"github.com/cymony/cryptomony/utils"
 )
 
-func testEqual(t *testing.T, testTimes int, g Group) {
+func testCvtEl(t *testing.T) {
+	t.Helper()
+
+	err := test.CheckPanic(func() {
+		cvtEl(nil)
+	})
+	test.CheckNoErr(t, err, "panic expected")
+}
+
+func testEqualElement(t *testing.T, testTimes int, g *Group) {
 	t.Helper()
 
 	for i := 0; i < testTimes; i++ {
@@ -23,7 +32,7 @@ func testEqual(t *testing.T, testTimes int, g Group) {
 	}
 }
 
-func testBase(t *testing.T, testTimes int, g Group) {
+func testBaseElement(t *testing.T, testTimes int, g *Group) {
 	t.Helper()
 
 	Q := g.NewElement().Identity()
@@ -37,7 +46,7 @@ func testBase(t *testing.T, testTimes int, g Group) {
 	}
 }
 
-func testIdentity(t *testing.T, testTimes int, g Group) {
+func testIdentityElement(t *testing.T, testTimes int, g *Group) {
 	t.Helper()
 
 	for i := 0; i < testTimes; i++ {
@@ -51,7 +60,7 @@ func testIdentity(t *testing.T, testTimes int, g Group) {
 	}
 }
 
-func testAddAndDouble(t *testing.T, testTimes int, g Group) {
+func testAddAndDoubleElement(t *testing.T, testTimes int, g *Group) {
 	t.Helper()
 
 	Q := g.NewElement()
@@ -79,7 +88,7 @@ func testAddAndDouble(t *testing.T, testTimes int, g Group) {
 	}
 }
 
-func testNegate(t *testing.T, testTimes int, g Group) {
+func testNegateElement(t *testing.T, testTimes int, g *Group) {
 	t.Helper()
 
 	Q := g.NewElement()
@@ -98,7 +107,7 @@ func testNegate(t *testing.T, testTimes int, g Group) {
 	}
 }
 
-func testSub(t *testing.T, testTimes int, g Group) {
+func testSubElement(t *testing.T, testTimes int, g *Group) {
 	t.Helper()
 
 	Q := g.NewElement().Identity()
@@ -122,7 +131,7 @@ func testSub(t *testing.T, testTimes int, g Group) {
 	}
 }
 
-func testMultiply(t *testing.T, testTimes int, g Group) {
+func testMultiplyElement(t *testing.T, testTimes int, g *Group) {
 	t.Helper()
 
 	Q := g.NewElement()
@@ -152,7 +161,27 @@ func testMultiply(t *testing.T, testTimes int, g Group) {
 	}
 }
 
-func testCopy(t *testing.T, testTimes int, g Group) {
+func testSetElement(t *testing.T, testTimes int, g *Group) {
+	t.Helper()
+
+	for i := 0; i < testTimes; i++ {
+		E := g.RandomElement()
+		Q := g.NewElement()
+
+		Q.Set(E)
+
+		if !(Q.Equal(E) == 1) {
+			test.Report(t, Q, E, E)
+		}
+
+		gotnil := Q.Set(nil)
+		if !gotnil.IsIdentity() {
+			test.Report(t, gotnil, "identity", "set nil should set to identity")
+		}
+	}
+}
+
+func testCopyElement(t *testing.T, testTimes int, g *Group) {
 	t.Helper()
 
 	Q := g.NewElement()
@@ -168,7 +197,7 @@ func testCopy(t *testing.T, testTimes int, g Group) {
 	}
 }
 
-func testEncodeAndDecode(t *testing.T, testTimes int, g Group) {
+func testEncodeAndDecodeElement(t *testing.T, testTimes int, g *Group) {
 	t.Helper()
 
 	Q := g.NewElement()
@@ -182,9 +211,15 @@ func testEncodeAndDecode(t *testing.T, testTimes int, g Group) {
 			test.Report(t, Q, r, "Q and R are not equal")
 		}
 	}
+
+	wrongSize := conanicalSize + 1
+	data := utils.RandomBytes(wrongSize)
+
+	err := Q.Decode(data)
+	test.CheckIsErr(t, err, "error expected")
 }
 
-func testMarshal(t *testing.T, testTimes int, g Group) {
+func testMarshalElement(t *testing.T, testTimes int, g *Group) {
 	t.Helper()
 
 	Q := g.NewElement()
@@ -209,109 +244,5 @@ func testMarshal(t *testing.T, testTimes int, g Group) {
 		if !(Q.Equal(r) == 1) {
 			test.Report(t, Q, r, "Q and R is not equal after marshal and unmarshal text")
 		}
-	}
-}
-
-func BenchmarkElement(b *testing.B) {
-	for _, group := range allGroups {
-		x := group.RandomElement()
-		y := group.RandomElement()
-		s := group.RandomScalar()
-
-		name := group.String()
-		// Base
-		b.Run(name+"/Base", func(b *testing.B) {
-			for i := 0; i < b.N; i++ {
-				x.Base()
-			}
-		})
-		// Identity
-		b.Run(name+"/Identity", func(b *testing.B) {
-			for i := 0; i < b.N; i++ {
-				x.Identity()
-			}
-		})
-		// Add
-		b.Run(name+"/Add", func(b *testing.B) {
-			for i := 0; i < b.N; i++ {
-				x.Add(y)
-			}
-		})
-		// Double
-		b.Run(name+"/Double", func(b *testing.B) {
-			for i := 0; i < b.N; i++ {
-				x.Double()
-			}
-		})
-		// Negate
-		b.Run(name+"/Add", func(b *testing.B) {
-			for i := 0; i < b.N; i++ {
-				x.Negate()
-			}
-		})
-		// Sub
-		x.Identity()
-		b.Run(name+"/Subtract", func(b *testing.B) {
-			for i := 0; i < b.N; i++ {
-				x.Subtract(y)
-			}
-		})
-		// Multiply
-		x = group.RandomElement()
-
-		b.Run(name+"/Multiply", func(b *testing.B) {
-			for i := 0; i < b.N; i++ {
-				x.Multiply(s)
-			}
-		})
-		// Copy
-		b.Run(name+"/Copy", func(b *testing.B) {
-			for i := 0; i < b.N; i++ {
-				x.Copy()
-			}
-		})
-		// Encode
-		b.Run(name+"/Encode", func(b *testing.B) {
-			for i := 0; i < b.N; i++ {
-				x.Encode()
-			}
-		})
-		// Decode
-		encoded := y.Encode()
-
-		b.Run(name+"/Decode", func(b *testing.B) {
-			for i := 0; i < b.N; i++ {
-				x.Decode(encoded) //nolint:errcheck // because of benchmark
-			}
-		})
-
-		// MarshalBinary
-		b.Run(name+"/MarshalBinary", func(b *testing.B) {
-			for i := 0; i < b.N; i++ {
-				x.MarshalBinary() //nolint:errcheck // because of benchmark
-			}
-		})
-		// UnmarshalBinary
-		marshaledB, err := y.MarshalBinary()
-		test.CheckNoErr(b, err, "error should not returned while marshaling binary")
-		b.Run(name+"/UnmarshalBinary", func(b *testing.B) {
-			for i := 0; i < b.N; i++ {
-				x.UnmarshalBinary(marshaledB) //nolint:errcheck // because of benchmark
-			}
-		})
-		// MarshalText
-		b.Run(name+"/MarshalText", func(b *testing.B) {
-			for i := 0; i < b.N; i++ {
-				x.MarshalText() //nolint:errcheck // because of benchmark
-			}
-		})
-		// UnmarshalText
-		marshaledT, err := y.MarshalBinary()
-		test.CheckNoErr(b, err, "error should not returned while marshaling text")
-		b.Run(name+"/UnmarshalText", func(b *testing.B) {
-			for i := 0; i < b.N; i++ {
-				x.UnmarshalText(marshaledT) //nolint:errcheck // because of benchmark
-			}
-		})
 	}
 }

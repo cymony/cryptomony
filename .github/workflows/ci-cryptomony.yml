@@ -3,7 +3,6 @@ on:
     push:
         branches:
             - main
-            - develop
     pull_request:
         branches:
             - main
@@ -58,7 +57,34 @@ jobs:
                   COVERALLS_TOKEN: ${{secrets.GITHUB_TOKEN}}
               run: goveralls -coverprofile=c.out -service=github
 
+    license-headers-check:
+        name: License Header Check
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout Source Code
+              uses: actions/checkout@v3
+
+            - name: Setup Go
+              uses: actions/setup-go@v3
+              with:
+                  go-version: '1.19'
+
+            - name: Check License Header
+              run: |
+                  go install github.com/google/addlicense@latest
+                  missing=( $(addlicense -check -v -l bsd -c "Cymony Authors." $(find . -name "*.go" -type f -print0 | xargs -0) || true) )
+                  if [ ${#missing[@]} -ne 0 ]; then
+                    echo "Missing copyright headers for files below,"
+                    for file in "${missing[@]}"
+                    do
+                        echo $file
+                    done
+                    echo "You can use scripts/addlicense.sh file to add headers"
+                    exit 1;
+                  fi
+
     codeql:
+        if: ${{ !github.event.act }}
         name: CodeQL
         runs-on: ubuntu-latest
         permissions:
