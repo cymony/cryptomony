@@ -3,6 +3,8 @@ on:
     push:
         branches:
             - main
+            - develop
+
     pull_request:
         branches:
             - main
@@ -55,7 +57,7 @@ jobs:
               if: ${{ !env.ACT }}
               env:
                   COVERALLS_TOKEN: ${{secrets.GITHUB_TOKEN}}
-              run: goveralls -coverprofile=c.out -service=github || true
+              run: goveralls -coverprofile=c.out -service=github
 
     license-headers-check:
         name: License Header Check
