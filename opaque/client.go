@@ -23,8 +23,8 @@ type Client interface {
 
 // ClientConfiguration contains configurations to initialize client instance
 type ClientConfiguration struct {
-	OpaqueSuite Suite  // Chosen Opaque Suite
-	ServerID    []byte // Server Identity. Usually, domain name
+	ServerID    []byte     // Server Identity. Usually, domain name
+	OpaqueSuite Identifier // Chosen Opaque Suite
 }
 
 type client struct {
@@ -36,7 +36,7 @@ type client struct {
 func NewClient(conf *ClientConfiguration) Client {
 	return &client{
 		serverIdentity: conf.ServerID,
-		suite:          conf.OpaqueSuite,
+		suite:          conf.OpaqueSuite.New(),
 	}
 }
 

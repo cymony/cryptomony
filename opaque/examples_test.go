@@ -33,8 +33,8 @@ func Example_registration() {
 
 	// Must be initialized client on the client side.
 	clientConf := opaque.ClientConfiguration{
-		ServerID:    []byte("example.com"),          // Server Identifier. Must be same on server
-		OpaqueSuite: opaque.Ristretto255Suite.New(), // Suite with recommended setup. Must be same on server
+		ServerID:    []byte("example.com"),    // Server Identifier. Must be same on server
+		OpaqueSuite: opaque.Ristretto255Suite, // Suite with recommended setup. Must be same on server
 	}
 
 	client := opaque.NewClient(&clientConf)
